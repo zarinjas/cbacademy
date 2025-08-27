@@ -26,12 +26,6 @@ class UpdateCourseRequest extends FormRequest
         
         return [
             'title' => 'required|string|max:255',
-            'slug' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('courses', 'slug')->ignore($courseId),
-            ],
             'description' => 'required|string|max:1000',
             'hero_image_url' => 'nullable|url|max:500',
             'display_order' => 'nullable|integer|min:0',
@@ -47,9 +41,6 @@ class UpdateCourseRequest extends FormRequest
         return [
             'title.required' => 'Course title is required.',
             'title.max' => 'Course title cannot exceed 255 characters.',
-            'slug.required' => 'Course slug is required.',
-            'slug.unique' => 'This course slug is already taken.',
-            'slug.max' => 'Course slug cannot exceed 255 characters.',
             'description.required' => 'Course description is required.',
             'description.max' => 'Course description cannot exceed 1000 characters.',
             'hero_image_url.url' => 'Please provide a valid URL for the hero image.',
