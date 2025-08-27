@@ -6,24 +6,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('lessons', function (Blueprint $table) {
-            $table->string('google_drive_url')->nullable()->after('youtube_id');
-            $table->enum('video_type', ['youtube', 'google_drive'])->default('youtube')->after('google_drive_url');
+            // add only if missing
+            if (!Schema::hasColumn('lessons', 'google_drive_url')) {
+                $table->string('google_drive_url')->nullable()->after('youtube_id');
+            }
+
+            if (!Schema::hasColumn('lessons', 'video_type')) {
+                $table->enum('video_type', ['youtube', 'google_drive'])
+                      ->default('youtube')
+                      ->after('google_drive_url');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('lessons', function (Blueprint $table) {
-            $table->dropColumn(['google_drive_url', 'video_type']);
+            if (Schema::hasColumn('lessons', 'video_type')) {
+                $table->dropColumn('video_type');
+            }
+            if (Schema::hasColumn('lessons', 'google_drive_url')) {
+                $table->dropColumn('google_drive_url');
+            }
         });
     }
 };
