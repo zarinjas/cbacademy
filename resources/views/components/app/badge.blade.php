@@ -13,7 +13,9 @@
         'warning' => 'bg-yellow-600 text-white',
         'danger' => 'bg-red-600 text-white',
         'info' => 'bg-blue-600 text-white',
-        'gold' => 'bg-chef-gold text-chef-black'
+        'gold' => 'bg-chef-gold text-chef-black',
+        'gold-outline' => 'bg-transparent border-2 border-chef-gold text-chef-gold',
+        'progress' => 'bg-transparent border-2 border-chef-gold text-chef-gold text-xs font-semibold'
     ];
     
     $sizeClasses = [

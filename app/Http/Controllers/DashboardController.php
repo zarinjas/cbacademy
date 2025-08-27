@@ -12,9 +12,16 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        
         // If user is admin, redirect to admin dashboard
-        if (auth()->user()->isAdmin()) {
+        if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
+        }
+
+        // Check if learner has completed profile
+        if (!$user->hasCompletedProfile()) {
+            return redirect()->route('profile.complete');
         }
 
         // Get all published courses ordered by display order

@@ -78,7 +78,7 @@
                 
                 <div class="space-y-4">
                     @forelse($course->publishedLessons as $index => $lesson)
-                        <x-app.card class="hover:shadow-soft-lg transition-all duration-300">
+                        <x-app.card hover="true" class="group cursor-pointer transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <!-- Lesson Number -->

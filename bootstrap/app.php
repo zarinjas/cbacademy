@@ -15,7 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'profile.completed' => \App\Http\Middleware\EnsureProfileCompleted::class,
         ]);
+        
+        // Add global security middleware
+        $middleware->append(\App\Http\Middleware\ContentSecurityPolicy::class);
     })
+    ->withProviders([
+        \App\Providers\SecurityServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

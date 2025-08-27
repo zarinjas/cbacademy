@@ -4,9 +4,9 @@
             <h2 class="font-semibold text-xl text-white leading-tight">
                 {{ __('User Management') }}
             </h2>
-            <x-app.button href="{{ route('admin.users.create') }}" class="bg-gold hover:bg-gold/80">
+            <a href="{{ route('admin.users.create') }}" class="bg-chef-gold hover:bg-chef-gold/80 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black px-6 py-3 rounded-2xl text-white">
                 {{ __('Create New User') }}
-            </x-app.button>
+            </a>
         </div>
     </x-slot>
 
@@ -14,8 +14,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <x-app.card>
                 <div class="overflow-x-auto">
-                    <x-app.table>
-                        <x-slot name="header">
+                    <table class="min-w-full divide-y divide-chef-gray-light">
+                        <thead>
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     User
@@ -33,8 +33,8 @@
                                     Actions
                                 </th>
                             </tr>
-                        </x-slot>
-                        <x-slot name="body">
+                        </thead>
+                        <tbody class="divide-y divide-chef-gray-light">
                             @forelse($users as $user)
                                 <tr class="hover:bg-gray-800/50">
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -52,24 +52,24 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($user->role === 'admin')
-                                            <x-app.badge class="bg-purple-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-600 text-white">
                                                 Admin
-                                            </x-app.badge>
+                                            </span>
                                         @else
-                                            <x-app.badge class="bg-blue-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
                                                 Learner
-                                            </x-app.badge>
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($user->viewerProfile)
-                                            <x-app.badge class="bg-green-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
                                                 Complete
-                                            </x-app.badge>
+                                            </span>
                                         @else
-                                            <x-app.badge class="bg-yellow-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-600 text-white">
                                                 Pending
-                                            </x-app.badge>
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
@@ -77,30 +77,30 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
-                                            <x-app.button href="{{ route('admin.users.show', $user) }}" 
-                                                          class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1">
+                                            <a href="{{ route('admin.users.show', $user) }}" 
+                                               class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                 View
-                                            </x-app.button>
-                                            <x-app.button href="{{ route('admin.users.edit', $user) }}" 
-                                                          class="bg-yellow-600 hover:bg-yellow-700 text-xs px-3 py-1">
+                                            </a>
+                                            <a href="{{ route('admin.users.edit', $user) }}" 
+                                               class="bg-yellow-600 hover:bg-yellow-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                 Edit
-                                            </x-app.button>
+                                            </a>
                                             @if($user->id !== auth()->id())
                                                 <form action="{{ route('admin.users.toggle-role', $user) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <x-app.button type="submit" 
-                                                                  class="bg-indigo-600 hover:bg-indigo-700 text-xs px-3 py-1">
+                                                    <button type="submit" 
+                                                            class="bg-indigo-600 hover:bg-indigo-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                         Toggle Role
-                                                    </x-app.button>
+                                                    </button>
                                                 </form>
                                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline" 
                                                       onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <x-app.button type="submit" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1">
+                                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                         Delete
-                                                    </x-app.button>
+                                                    </button>
                                                 </form>
                                             @endif
                                         </div>
@@ -109,12 +109,12 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="px-6 py-4 text-center text-gray-400">
-                                        No users found. <a href="{{ route('admin.users.create') }}" class="text-gold hover:underline">Create your first user</a>
+                                        No users found. <a href="{{ route('admin.users.create') }}" class="text-chef-gold hover:underline">Create your first user</a>
                                     </td>
                                 </tr>
                             @endforelse
-                        </x-slot>
-                    </x-app.table>
+                        </tbody>
+                    </table>
                 </div>
             </x-app.card>
         </div>

@@ -71,7 +71,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-xl font-semibold text-white mb-2">No Courses Available</h3>
-                                <p class="text-gray-400">Check back soon for new cooking courses!</p>
+                                <p class="text-gray-400">Check back soon for new trading courses!</p>
                             </div>
                         </x-app.card>
                     </div>

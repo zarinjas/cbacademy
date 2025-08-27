@@ -2,10 +2,15 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="font-semibold text-xl text-white leading-tight">
-                    {{ $lesson->title }}
-                </h2>
-                <p class="text-gray-400 text-sm mt-1">
+                <div class="flex items-center space-x-3 mb-2">
+                    <h2 class="font-semibold text-xl text-white leading-tight">
+                        {{ $lesson->title }}
+                    </h2>
+                    <x-app.badge variant="progress" size="sm">
+                        {{ $course->publishedLessons->search($lesson) + 1 }}/{{ $course->publishedLessons->count() }}
+                    </x-app.badge>
+                </div>
+                <p class="text-gray-400 text-sm">
                     {{ $course->title }} • Lesson {{ $course->publishedLessons->search($lesson) + 1 }} of {{ $course->publishedLessons->count() }}
                 </p>
             </div>

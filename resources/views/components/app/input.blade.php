@@ -6,7 +6,7 @@
 ])
 
 @php
-    $baseClasses = 'input-field w-full';
+    $baseClasses = 'w-full px-4 py-3 bg-chef-gray-light border border-chef-gray-lighter rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold-focus focus:border-chef-gold transition-all duration-200';
     $classes = $baseClasses . ' ' . $class;
     
     if ($error) {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminCourseController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminLessonController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
@@ -18,21 +19,25 @@ Route::get('/', function () {
 // Debug route to check user role
 Route::get('/debug/user', function () {
     if (auth()->check()) {
+        $user = auth()->user();
         return response()->json([
-            'user_id' => auth()->id(),
-            'name' => auth()->user()->name,
-            'email' => auth()->user()->email,
-            'role' => auth()->user()->role,
-            'is_admin' => auth()->user()->isAdmin(),
-            'is_learner' => auth()->user()->isLearner(),
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'is_admin' => $user->isAdmin(),
+            'is_learner' => $user->isLearner(),
+            'has_completed_profile' => $user->hasCompletedProfile(),
+            'current_route' => request()->route()->getName(),
+            'current_url' => request()->url(),
         ]);
     }
     return response()->json(['message' => 'Not authenticated']);
 })->middleware('auth');
 
-// User Dashboard - Only for learners
+// User Dashboard - Only for learners (exclude admins)
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified', 'profile.completed'])
+    ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -53,9 +58,14 @@ Route::middleware('auth')->group(function () {
         ->name('courses.lessons.show');
     
     // Admin routes - Only for admins
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['role:admin', 'throttle:admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Admin root redirects to dashboard
+        Route::get('/', function() {
+            return redirect()->route('admin.dashboard');
+        });
+        
         // Admin Dashboard
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         
         // User management
         Route::resource('users', AdminUserController::class);
@@ -64,6 +74,7 @@ Route::middleware('auth')->group(function () {
         // Course management
         Route::resource('courses', AdminCourseController::class);
         Route::patch('/courses/{course}/toggle-publish', [AdminCourseController::class, 'togglePublish'])->name('courses.toggle-publish');
+        Route::get('/courses/{course}', [AdminCourseController::class, 'show'])->name('courses.show');
         
         // Lesson management
         Route::get('/courses/{course}/lessons/create', [AdminLessonController::class, 'create'])->name('lessons.create');
@@ -73,6 +84,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/courses/{course}/lessons/{lesson}', [AdminLessonController::class, 'destroy'])->name('lessons.destroy');
         Route::patch('/courses/{course}/lessons/{lesson}/toggle-publish', [AdminLessonController::class, 'togglePublish'])->name('lessons.toggle-publish');
         Route::patch('/courses/{course}/lessons/{lesson}/toggle-free-preview', [AdminLessonController::class, 'toggleFreePreview'])->name('lessons.toggle-free-preview');
+        
+        // Settings
+        Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings/learner-credentials', [AdminSettingsController::class, 'updateLearnerCredentials'])->name('settings.update-learner-credentials');
     });
 });
 

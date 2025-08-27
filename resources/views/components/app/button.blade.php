@@ -9,10 +9,10 @@
     $baseClasses = 'inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black';
     
     $variantClasses = [
-        'primary' => 'btn-primary',
-        'secondary' => 'btn-secondary',
-        'outline' => 'bg-transparent border-2 border-chef-gray-light text-gray-300 hover:border-chef-gold hover:text-chef-gold',
-        'ghost' => 'bg-transparent text-gray-300 hover:text-chef-gold hover:bg-chef-gray-light'
+        'primary' => 'bg-chef-gold text-chef-black border-2 border-chef-gold hover:bg-chef-gold-hover hover:border-chef-gold-hover focus:ring-chef-gold-focus shadow-gold-glow',
+        'secondary' => 'bg-chef-gray-light text-white border-2 border-chef-gray-lighter hover:bg-chef-gray-lighter hover:border-chef-gold focus:ring-chef-gold-focus',
+        'outline' => 'bg-transparent border-2 border-chef-gray-light text-gray-300 hover:border-chef-gold hover:text-chef-gold focus:ring-chef-gold-focus',
+        'ghost' => 'bg-transparent text-gray-300 hover:text-chef-gold hover:bg-chef-gray-light focus:ring-chef-gold-focus'
     ];
     
     $sizeClasses = [

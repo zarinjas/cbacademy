@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Lesson\StoreLessonRequest;
+use App\Http\Requests\Lesson\UpdateLessonRequest;
 use App\Models\Course;
 use App\Models\Lesson;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class AdminLessonController extends Controller
@@ -21,16 +22,9 @@ class AdminLessonController extends Controller
     /**
      * Store a newly created lesson in storage.
      */
-    public function store(Request $request, Course $course)
+    public function store(StoreLessonRequest $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'youtube_url' => 'required|url',
-            'duration_seconds' => 'nullable|integer|min:0',
-            'display_order' => 'required|integer|min:0',
-            'is_free_preview' => 'boolean',
-            'is_published' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         // Extract YouTube ID from URL
         $youtubeId = Lesson::extractYoutubeId($validated['youtube_url']);
@@ -66,21 +60,14 @@ class AdminLessonController extends Controller
     /**
      * Update the specified lesson in storage.
      */
-    public function update(Request $request, Course $course, Lesson $lesson)
+    public function update(UpdateLessonRequest $request, Course $course, Lesson $lesson)
     {
         // Ensure lesson belongs to course
         if ($lesson->course_id !== $course->id) {
             abort(404);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'youtube_url' => 'required|url',
-            'duration_seconds' => 'nullable|integer|min:0',
-            'display_order' => 'required|integer|min:0',
-            'is_free_preview' => 'boolean',
-            'is_published' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         // Extract YouTube ID from URL
         $youtubeId = Lesson::extractYoutubeId($validated['youtube_url']);

@@ -123,4 +123,34 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Security settings for the application including rate limiting,
+    | content security policy, and other security headers.
+    |
+    */
+
+    'security' => [
+        'headers_enabled' => env('SECURITY_HEADERS_ENABLED', true),
+        'csp_enabled' => env('CSP_ENABLED', true),
+        'hsts_enabled' => env('HSTS_ENABLED', true),
+        'rate_limiting' => [
+            'login' => [
+                'max_attempts' => env('LOGIN_MAX_ATTEMPTS', 5),
+                'decay_minutes' => env('LOGIN_DECAY_MINUTES', 1),
+            ],
+            'api' => [
+                'max_attempts' => env('API_MAX_ATTEMPTS', 60),
+                'decay_minutes' => env('API_DECAY_MINUTES', 1),
+            ],
+            'admin' => [
+                'max_attempts' => env('ADMIN_ACTIONS_MAX_ATTEMPTS', 30),
+                'decay_minutes' => env('ADMIN_ACTIONS_DECAY_MINUTES', 1),
+            ],
+        ],
+    ],
+
 ];

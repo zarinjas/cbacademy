@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'ChefBull Academy') }}</title>
+        <title>{{ config('app.name', 'Chef Bull Academy') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,6 +17,11 @@
     <body class="font-sans antialiased bg-chef-black text-white">
         <div class="min-h-screen bg-chef-black">
             @include('layouts.navigation')
+
+            <!-- Toast Messages -->
+            @if(session('success'))
+                <x-app.toast type="success" :message="session('success')" :show="true" />
+            @endif
 
             <!-- Page Heading -->
             @isset($header)

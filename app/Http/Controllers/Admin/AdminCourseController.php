@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Course\StoreCourseRequest;
+use App\Http\Requests\Course\UpdateCourseRequest;
 use App\Models\Course;
 use App\Models\Lesson;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class AdminCourseController extends Controller
@@ -33,16 +34,9 @@ class AdminCourseController extends Controller
     /**
      * Store a newly created course in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCourseRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'hero_image_url' => 'nullable|url',
-            'display_order' => 'required|integer|min:0',
-            'is_published' => 'boolean',
-        ]);
-
+        $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_published'] = $request->has('is_published');
 
@@ -75,16 +69,9 @@ class AdminCourseController extends Controller
     /**
      * Update the specified course in storage.
      */
-    public function update(Request $request, Course $course)
+    public function update(UpdateCourseRequest $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'hero_image_url' => 'nullable|url',
-            'display_order' => 'required|integer|min:0',
-            'is_published' => 'boolean',
-        ]);
-
+        $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_published'] = $request->has('is_published');
 

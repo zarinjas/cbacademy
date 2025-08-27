@@ -1,61 +1,332 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎯 CB Academy - Trading Education Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, secure, and scalable learning management system built with Laravel for trading education. CB Academy provides a professional platform where administrators can create and manage trading courses while learners access content through a shared account system.
 
-## About Laravel
+## ✨ Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **🎓 Course Management**: Create, edit, and organize trading courses with lessons
+- **📹 YouTube Integration**: Seamless video lesson embedding with YouTube-nocookie
+- **🔐 Role-Based Access**: Secure admin/learner separation with middleware
+- **🎨 Modern UI/UX**: Beautiful black & gold theme with responsive design
+- **🛡️ Enterprise Security**: Rate limiting, CSP, security headers, and more
+- **📱 Responsive Design**: Works perfectly on all devices
+- **⚡ Performance**: Optimized with Laravel best practices
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🏗️ Architecture Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### User Roles & Access Control
+- **Admin Users**: Full access to course management, user management, and system settings
+- **Learner Users**: Access to published courses through a shared account system
+- **Profile Gate**: Learners must complete profile setup before accessing content
 
-## Learning Laravel
+### Key Components
+- **Admin Panel**: Complete CRUD operations for courses, lessons, and users
+- **Learner Dashboard**: Course browsing and lesson viewing interface
+- **Shared Account System**: Single learner account for all users (managed by admins)
+- **Security Middleware**: Rate limiting, role verification, and profile completion checks
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 Quick Start
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### ⚡ Super Quick Setup (5 minutes)
+```bash
+# 1. Clone & Install
+git clone <repository-url>
+cd cbacademy-hiddenbase
+composer install && npm install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 2. Environment Setup
+cp env.example .env
+php artisan key:generate
 
-## Laravel Sponsors
+# 3. Database Setup
+# Create database 'cbacademy' in MySQL, then:
+php artisan migrate --seed
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 4. Start Development
+php artisan serve          # Terminal 1
+npm run dev               # Terminal 2
+```
 
-### Premium Partners
+**Access the app:**
+- **Admin**: `http://localhost:8000/admin` (admin@chefbullacademy.local / password)
+- **Learner**: `http://localhost:8000/login` (access@chefbullacademy.local / password from .env)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prerequisites
+- PHP 8.1+ with extensions: BCMath, Ctype, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+- Composer 2.0+
+- MySQL 8.0+ or MariaDB 10.5+
+- Node.js 16+ and NPM (for frontend assets)
 
-## Contributing
+### Installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd cbacademy-hiddenbase
+```
 
-## Code of Conduct
+#### 2. Install Dependencies
+```bash
+# Install PHP dependencies
+composer install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Install Node.js dependencies
+npm install
+```
 
-## Security Vulnerabilities
+#### 3. Environment Setup
+```bash
+# Copy environment file
+cp env.example .env
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Generate application key
+php artisan key:generate
+```
 
-## License
+#### 4. Configure Environment
+Edit `.env` file with your database and application settings:
+```bash
+# Database
+DB_DATABASE=cbacademy
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Shared Learner Account (used by Settings page)
+SHARED_LEARNER_EMAIL=access@chefbullacademy.local
+SHARED_LEARNER_PASSWORD=your_secure_password
+```
+
+#### 5. Database Setup
+```bash
+# Run migrations
+php artisan migrate
+
+# Seed the database with initial data
+php artisan db:seed
+```
+
+#### 6. Build Frontend Assets
+```bash
+# Development
+npm run dev
+
+# Production
+npm run build
+```
+
+#### 7. Start the Application
+
+**Option A: Laravel Sail (Docker)**
+```bash
+# Install Sail
+composer require laravel/sail --dev
+
+# Start services
+./vendor/bin/sail up -d
+
+# Run commands through Sail
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+```
+
+**Option B: Local Development**
+```bash
+# Start local server
+php artisan serve
+
+# Or use Laragon/XAMPP for local development
+```
+
+### Default Accounts
+
+After seeding, you'll have these default accounts:
+
+#### Admin Account
+- **Email**: `admin@chefbullacademy.local`
+- **Password**: `password`
+- **Role**: Administrator
+
+#### Shared Learner Account
+- **Email**: `access@chefbullacademy.local`
+- **Password**: Set in `.env` file
+- **Role**: Learner (shared by all users)
+
+## 🔐 Access Control & Roles
+
+### Admin Access
+- **Route**: `/admin`
+- **Middleware**: `role:admin`
+- **Features**:
+  - Dashboard with system metrics
+  - Course management (CRUD operations)
+  - Lesson management (CRUD operations)
+  - User management
+  - System settings
+  - Shared learner credentials management
+
+### Learner Access
+- **Route**: `/dashboard`
+- **Middleware**: `auth`, `verified`, `profile.completed`
+- **Features**:
+  - Browse published courses
+  - View lesson content
+  - Update display name (shared account)
+  - Access to free preview lessons
+
+### Profile Completion Gate
+Learners must complete their profile before accessing content:
+- **Route**: `/profile`
+- **Purpose**: Collect initial user information
+- **Required**: Name and basic profile details
+
+## 🛠️ Development
+
+### Project Structure
+```
+cbacademy-hiddenbase/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          # Admin controllers
+│   │   │   ├── Auth/           # Authentication
+│   │   │   └── ...             # Other controllers
+│   │   ├── Middleware/         # Custom middleware
+│   │   └── Requests/           # Form requests
+│   ├── Models/                 # Eloquent models
+│   └── Providers/              # Service providers
+├── config/                     # Configuration files
+├── database/
+│   ├── migrations/             # Database migrations
+│   └── seeders/                # Database seeders
+├── resources/
+│   └── views/                  # Blade templates
+└── routes/                     # Route definitions
+```
+
+### Key Commands
+```bash
+# Clear caches
+php artisan route:clear
+php artisan config:clear
+php artisan view:clear
+
+# Generate new components
+php artisan make:controller Admin/NewController
+php artisan make:request NewRequest
+php artisan make:middleware NewMiddleware
+
+# Database operations
+php artisan migrate:fresh --seed
+php artisan tinker
+```
+
+### Security Features
+- **Rate Limiting**: Configurable limits for login, admin actions, and API calls
+- **Content Security Policy**: Restricts frame sources to YouTube-nocookie.com
+- **Security Headers**: X-Frame-Options, X-XSS-Protection, and more
+- **Role Middleware**: Ensures proper access control
+- **Input Validation**: Comprehensive form request validation
+
+## 📱 Frontend
+
+### Technologies
+- **Tailwind CSS**: Utility-first CSS framework
+- **Alpine.js**: Lightweight JavaScript framework
+- **Vite**: Modern build tool for assets
+
+### Custom Components
+- **x-app.card**: Styled card containers
+- **x-app.button**: Consistent button styling
+- **x-app.toast**: Toast notification system
+- **x-app.validation-errors**: Form validation display
+
+### Theme Colors
+```css
+/* Custom color palette */
+--chef-gold: #FFD700
+--chef-black: #1a1a1a
+--chef-gray: #2d2d2d
+--chef-gray-light: #404040
+```
+
+## 🗄️ Database
+
+### Key Tables
+- **users**: User accounts with role-based access
+- **courses**: Course information and metadata
+- **lessons**: Individual lesson content and YouTube integration
+- **viewer_profiles**: Learner profile completion data
+
+### Relationships
+- Users can have many courses (as creators)
+- Courses have many lessons
+- Users have one viewer profile
+
+## 🔧 Configuration
+
+### Rate Limiting
+Configure rate limits in `.env`:
+```bash
+LOGIN_MAX_ATTEMPTS=5
+LOGIN_DECAY_MINUTES=1
+ADMIN_ACTIONS_MAX_ATTEMPTS=30
+ADMIN_ACTIONS_DECAY_MINUTES=1
+```
+
+### Security Headers
+Control security features:
+```bash
+SECURITY_HEADERS_ENABLED=true
+CSP_ENABLED=true
+HSTS_ENABLED=true
+```
+
+## 🚀 Deployment
+
+### Production Checklist
+- [ ] Set `APP_ENV=production`
+- [ ] Set `APP_DEBUG=false`
+- [ ] Configure production database
+- [ ] Set up HTTPS/SSL
+- [ ] Configure production mail settings
+- [ ] Set secure `APP_KEY`
+- [ ] Configure caching (Redis recommended)
+- [ ] Set up monitoring and logging
+
+### Environment Variables
+Ensure all required environment variables are set:
+- Database credentials
+- Mail configuration
+- Security settings
+- Shared learner account credentials
+
+## 📚 Documentation
+
+- **Security**: See `SECURITY.md` for detailed security information
+- **API**: Built-in Laravel API documentation
+- **Database**: Migration files serve as database documentation
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
+
+## 🆘 Support
+
+For support and questions:
+- **Documentation**: Check this README and code comments
+- **Issues**: Create an issue in the repository
+- **Security**: Report security issues privately
+
+---
+
+**CB Academy** - Empowering traders through education 🎯✨
+
+*Built with Laravel, Tailwind CSS, and Alpine.js*

@@ -5,11 +5,8 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-chef-gold rounded-lg flex items-center justify-center">
-                            <span class="text-chef-black font-bold text-lg">C</span>
-                        </div>
-                        <span class="text-xl font-bold text-chef-gold">chefbullacademy</span>
+                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="flex items-center">
+                        <img src="{{ asset('images/cropped-CB-Academy-Logo-08.png') }}" alt="CB Academy Logo" class="h-12 w-auto object-contain">
                     </a>
                 </div>
 
@@ -25,6 +22,9 @@
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             {{ __('Manage Users') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
+                            {{ __('Settings') }}
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
@@ -32,7 +32,7 @@
                         <x-nav-link :href="route('courses.index')" :active="request()->routeIs('courses.*')">
                             {{ __('Courses') }}
                         </x-nav-link>
-                        <x-nav-link href="#" :active="request()->routeIs('profile')">
+                        <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                             {{ __('Profile') }}
                         </x-nav-link>
                     @endif
@@ -108,6 +108,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     {{ __('Manage Users') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
+                    {{ __('Settings') }}
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

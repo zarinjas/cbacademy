@@ -4,18 +4,20 @@
             <h2 class="font-semibold text-xl text-white leading-tight">
                 {{ __('Course Management') }}
             </h2>
-            <x-app.button href="{{ route('admin.courses.create') }}" class="bg-gold hover:bg-gold/80">
+            <a href="{{ route('admin.courses.create') }}" class="bg-chef-gold hover:bg-chef-gold/80 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black px-6 py-3 rounded-2xl text-white">
                 {{ __('Create New Course') }}
-            </x-app.button>
+            </a>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            
             <x-app.card>
                 <div class="overflow-x-auto">
-                    <x-app.table>
-                        <x-slot name="header">
+                    <table class="min-w-full divide-y divide-chef-gray-light">
+                        <thead>
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     Course
@@ -33,8 +35,8 @@
                                     Actions
                                 </th>
                             </tr>
-                        </x-slot>
-                        <x-slot name="body">
+                        </thead>
+                        <tbody class="divide-y divide-chef-gray-light">
                             @forelse($courses as $course)
                                 <tr class="hover:bg-gray-800/50">
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -66,40 +68,40 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($course->is_published)
-                                            <x-app.badge class="bg-green-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
                                                 Published
-                                            </x-app.badge>
+                                            </span>
                                         @else
-                                            <x-app.badge class="bg-gray-600 text-white">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-600 text-white">
                                                 Draft
-                                            </x-app.badge>
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
-                                            <x-app.button href="{{ route('admin.courses.show', $course) }}" 
-                                                          class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1">
+                                            <a href="{{ route('admin.courses.show', $course) }}" 
+                                               class="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                 View
-                                            </x-app.button>
-                                            <x-app.button href="{{ route('admin.courses.edit', $course) }}" 
-                                                          class="bg-yellow-600 hover:bg-yellow-700 text-xs px-3 py-1">
+                                            </a>
+                                            <a href="{{ route('admin.courses.edit', $course) }}" 
+                                               class="bg-yellow-600 hover:bg-yellow-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                 Edit
-                                            </x-app.button>
+                                            </a>
                                             <form action="{{ route('admin.courses.toggle-publish', $course) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <x-app.button type="submit" 
-                                                              class="{{ $course->is_published ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700' }} text-xs px-3 py-1">
+                                                <button type="submit" 
+                                                        class="{{ $course->is_published ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700' }} text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                     {{ $course->is_published ? 'Unpublish' : 'Publish' }}
-                                                </x-app.button>
+                                                </button>
                                             </form>
                                             <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="inline" 
                                                   onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <x-app.button type="submit" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1">
+                                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black rounded-xl text-white">
                                                     Delete
-                                                </x-app.button>
+                                                </button>
                                             </form>
                                         </div>
                                     </td>
@@ -107,12 +109,12 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="px-6 py-4 text-center text-gray-400">
-                                        No courses found. <a href="{{ route('admin.courses.create') }}" class="text-gold hover:underline">Create your first course</a>
+                                        No courses found. <a href="{{ route('admin.courses.create') }}" class="text-chef-gold hover:underline">Create your first course</a>
                                     </td>
                                 </tr>
                             @endforelse
-                        </x-slot>
-                    </x-app.table>
+                        </tbody>
+                    </table>
                 </div>
             </x-app.card>
         </div>

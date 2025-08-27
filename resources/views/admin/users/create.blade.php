@@ -4,9 +4,9 @@
             <h2 class="font-semibold text-xl text-white leading-tight">
                 {{ __('Create New User') }}
             </h2>
-            <x-app.button href="{{ route('admin.users.index') }}" class="bg-gray-600 hover:bg-gray-700">
+            <a href="{{ route('admin.users.index') }}" class="bg-gray-600 hover:bg-gray-700 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black px-6 py-3 rounded-2xl text-white">
                 {{ __('Back to Users') }}
-            </x-app.button>
+            </a>
         </div>
     </x-slot>
 
@@ -16,19 +16,20 @@
                 <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-6">
                     @csrf
                     
+                    <x-app.validation-errors />
+                    
                     <div>
                         <label for="name" class="block text-sm font-medium text-white mb-2">
                             Full Name *
                         </label>
-                        <x-app.input 
+                        <input 
                             id="name" 
                             name="name" 
                             type="text" 
                             value="{{ old('name') }}" 
                             required 
-                            class="w-full"
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
                             placeholder="Enter full name">
-                        </x-app.input>
                         @error('name')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
@@ -38,15 +39,14 @@
                         <label for="email" class="block text-sm font-medium text-white mb-2">
                             Email Address *
                         </label>
-                        <x-app.input 
+                        <input 
                             id="email" 
                             name="email" 
                             type="email" 
                             value="{{ old('email') }}" 
                             required 
-                            class="w-full"
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
                             placeholder="user@example.com">
-                        </x-app.input>
                         @error('email')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
@@ -56,15 +56,30 @@
                         <label for="password" class="block text-sm font-medium text-white mb-2">
                             Password *
                         </label>
-                        <x-app.input 
+                        <input 
                             id="password" 
                             name="password" 
                             type="password" 
                             required 
-                            class="w-full"
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
                             placeholder="Enter password">
-                        </x-app.input>
                         @error('password')
+                            <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-white mb-2">
+                            Confirm Password *
+                        </label>
+                        <input 
+                            id="password_confirmation" 
+                            name="password_confirmation" 
+                            type="password" 
+                            required 
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
+                            placeholder="Confirm password">
+                        @error('password_confirmation')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
@@ -77,7 +92,7 @@
                             id="role" 
                             name="role" 
                             required 
-                            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent">
                             <option value="">Select a role</option>
                             <option value="learner" {{ old('role') === 'learner' ? 'selected' : '' }}>Learner</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
@@ -88,17 +103,17 @@
                     </div>
 
                     <div class="flex justify-end space-x-4 pt-6">
-                        <x-app.button type="button" 
-                                      onclick="window.history.back()" 
-                                      class="bg-gray-600 hover:bg-gray-700">
+                        <button type="button" 
+                                onclick="window.history.back()" 
+                                class="bg-gray-600 hover:bg-gray-700 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black px-6 py-3 rounded-2xl text-white">
                             {{ __('Cancel') }}
-                        </x-app.button>
-                        <x-app.button type="submit" class="bg-gold hover:bg-gold/80">
+                        </button>
+                        <button type="submit" class="bg-chef-gold hover:bg-chef-gold/80 inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-chef-black px-6 py-3 rounded-2xl text-white">
                             {{ __('Create User') }}
-                        </x-app.button>
+                        </button>
                     </div>
                 </form>
-            </x-app-card>
+            </x-app.card>
         </div>
     </div>
 </x-app-layout>
