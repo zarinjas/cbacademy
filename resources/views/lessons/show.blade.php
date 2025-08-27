@@ -45,16 +45,26 @@
             <div class="mb-8">
                 <x-app.card>
                     <div class="space-y-6">
-                        <!-- YouTube Video Player -->
+                        <!-- Video Player -->
                         <div class="relative w-full" style="padding-bottom: 56.25%;">
-                            <iframe 
-                                src="{{ $lesson->youtube_embed_url }}?rel=0&modestbranding=1" 
-                                class="absolute top-0 left-0 w-full h-full rounded-2xl"
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen
-                                title="{{ $lesson->title }}"
-                            ></iframe>
+                            @if($lesson->video_type === 'google_drive')
+                                <iframe 
+                                    src="{{ $lesson->video_embed_url }}" 
+                                    class="absolute top-0 left-0 w-full h-full rounded-2xl"
+                                    frameborder="0" 
+                                    allowfullscreen
+                                    title="{{ $lesson->title }}"
+                                ></iframe>
+                            @else
+                                <iframe 
+                                    src="{{ $lesson->video_embed_url }}?rel=0&modestbranding=1" 
+                                    class="absolute top-0 left-0 w-full h-full rounded-2xl"
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen
+                                    title="{{ $lesson->title }}"
+                                ></iframe>
+                            @endif
                         </div>
 
                         <!-- Lesson Info -->

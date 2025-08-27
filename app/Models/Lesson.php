@@ -130,6 +130,7 @@ class Lesson extends Model
         // Convert Google Drive sharing URL to embed URL
         $driveId = $this->extractGoogleDriveId($this->google_drive_url);
         if ($driveId) {
+            // Use the preview URL for better compatibility
             return "https://drive.google.com/file/d/{$driveId}/preview";
         }
         
@@ -260,6 +261,8 @@ class Lesson extends Model
             '/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/',
             '/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/',
             '/drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/view\?usp=([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/view\?usp=drive_link/',
         ];
 
         foreach ($patterns as $pattern) {
