@@ -17,15 +17,18 @@ class Lesson extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'course_id',
         'title',
         'slug',
+        'content',
         'youtube_url',
         'youtube_id',
+        'google_drive_url',
+        'video_type', // 'youtube' or 'google_drive'
         'duration_seconds',
         'display_order',
         'is_free_preview',
         'is_published',
+        'course_id',
     ];
 
     /**
@@ -93,11 +96,56 @@ class Lesson extends Model
     }
 
     /**
+     * Get the video embed URL based on video type.
+     */
+    public function getVideoEmbedUrlAttribute(): string
+    {
+        if ($this->video_type === 'google_drive' && $this->google_drive_url) {
+            return $this->getGoogleDriveEmbedUrl();
+        }
+        
+        return $this->getYoutubeEmbedUrl();
+    }
+
+    /**
      * Get the YouTube embed URL.
      */
     public function getYoutubeEmbedUrlAttribute(): string
     {
+        if (!$this->youtube_id) {
+            return '';
+        }
         return "https://www.youtube.com/embed/{$this->youtube_id}";
+    }
+
+    /**
+     * Get the Google Drive embed URL.
+     */
+    public function getGoogleDriveEmbedUrlAttribute(): string
+    {
+        if (!$this->google_drive_url) {
+            return '';
+        }
+        
+        // Convert Google Drive sharing URL to embed URL
+        $driveId = $this->extractGoogleDriveId($this->google_drive_url);
+        if ($driveId) {
+            return "https://drive.google.com/file/d/{$driveId}/preview";
+        }
+        
+        return '';
+    }
+
+    /**
+     * Get the video thumbnail URL.
+     */
+    public function getVideoThumbnailAttribute(): string
+    {
+        if ($this->video_type === 'google_drive') {
+            return $this->getGoogleDriveThumbnail();
+        }
+        
+        return $this->getYoutubeThumbnail();
     }
 
     /**
@@ -105,15 +153,34 @@ class Lesson extends Model
      */
     public function getYoutubeThumbnailAttribute(): string
     {
+        if (!$this->youtube_id) {
+            return '';
+        }
         return "https://img.youtube.com/vi/{$this->youtube_id}/maxresdefault.jpg";
     }
 
     /**
-     * Get the YouTube thumbnail URL (medium quality).
+     * Get the YouTube thumbnail URL (medium size).
      */
     public function getYoutubeThumbnailMediumAttribute(): string
     {
+        if (!$this->youtube_id) {
+            return '';
+        }
         return "https://img.youtube.com/vi/{$this->youtube_id}/mqdefault.jpg";
+    }
+
+    /**
+     * Get the Google Drive thumbnail URL.
+     */
+    public function getGoogleDriveThumbnailAttribute(): string
+    {
+        if (!$this->google_drive_url) {
+            return '';
+        }
+        
+        // Google Drive doesn't provide direct thumbnails, so we'll use a default
+        return asset('images/google-drive-video-thumbnail.jpg');
     }
 
     /**
@@ -182,5 +249,69 @@ class Lesson extends Model
         }
 
         return null;
+    }
+
+    /**
+     * Extract Google Drive ID from URL.
+     */
+    public static function extractGoogleDriveId(string $url): ?string
+    {
+        $patterns = [
+            '/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/',
+            '/drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine video type from URL.
+     */
+    public static function determineVideoType(string $url): string
+    {
+        if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
+            return 'youtube';
+        }
+        
+        if (str_contains($url, 'drive.google.com')) {
+            return 'google_drive';
+        }
+        
+        return 'unknown';
+    }
+
+    /**
+     * Check if lesson has a valid video.
+     */
+    public function hasVideo(): bool
+    {
+        if ($this->video_type === 'youtube') {
+            return !empty($this->youtube_url) && !empty($this->youtube_id);
+        }
+        
+        if ($this->video_type === 'google_drive') {
+            return !empty($this->google_drive_url);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get video source for display.
+     */
+    public function getVideoSourceAttribute(): string
+    {
+        if ($this->video_type === 'google_drive') {
+            return 'Google Drive';
+        }
+        
+        return 'YouTube';
     }
 }

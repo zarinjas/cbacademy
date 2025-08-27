@@ -24,21 +24,20 @@ class AdminLessonController extends Controller
      */
     public function store(StoreLessonRequest $request, Course $course)
     {
-        $validated = $request->validated();
-
-        // Extract YouTube ID from URL
-        $youtubeId = Lesson::extractYoutubeId($validated['youtube_url']);
-        if (!$youtubeId) {
-            return back()->withErrors(['youtube_url' => 'Invalid YouTube URL provided.'])->withInput();
+        $data = $request->validated();
+        
+        // Determine video type and extract IDs
+        if ($request->filled('youtube_url')) {
+            $data['video_type'] = 'youtube';
+            $data['youtube_id'] = Lesson::extractYoutubeId($request->youtube_url);
+            $data['google_drive_url'] = null;
+        } else {
+            $data['video_type'] = 'google_drive';
+            $data['youtube_url'] = null;
+            $data['youtube_id'] = null;
         }
 
-        $validated['slug'] = Str::slug($validated['title']);
-        $validated['youtube_id'] = $youtubeId;
-        $validated['course_id'] = $course->id;
-        $validated['is_free_preview'] = $request->has('is_free_preview');
-        $validated['is_published'] = $request->has('is_published');
-
-        Lesson::create($validated);
+        $lesson = $course->lessons()->create($data);
 
         return redirect()->route('admin.courses.show', $course)
             ->with('success', 'Lesson created successfully!');
@@ -62,25 +61,20 @@ class AdminLessonController extends Controller
      */
     public function update(UpdateLessonRequest $request, Course $course, Lesson $lesson)
     {
-        // Ensure lesson belongs to course
-        if ($lesson->course_id !== $course->id) {
-            abort(404);
+        $data = $request->validated();
+        
+        // Determine video type and extract IDs
+        if ($request->filled('youtube_url')) {
+            $data['video_type'] = 'youtube';
+            $data['youtube_id'] = Lesson::extractYoutubeId($request->youtube_url);
+            $data['google_drive_url'] = null;
+        } else {
+            $data['video_type'] = 'google_drive';
+            $data['youtube_url'] = null;
+            $data['youtube_id'] = null;
         }
 
-        $validated = $request->validated();
-
-        // Extract YouTube ID from URL
-        $youtubeId = Lesson::extractYoutubeId($validated['youtube_url']);
-        if (!$youtubeId) {
-            return back()->withErrors(['youtube_url' => 'Invalid YouTube URL provided.'])->withInput();
-        }
-
-        $validated['slug'] = Str::slug($validated['title']);
-        $validated['youtube_id'] = $youtubeId;
-        $validated['is_free_preview'] = $request->has('is_free_preview');
-        $validated['is_published'] = $request->has('is_published');
-
-        $lesson->update($validated);
+        $lesson->update($data);
 
         return redirect()->route('admin.courses.show', $course)
             ->with('success', 'Lesson updated successfully!');

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Lesson;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Lesson;
 use Illuminate\Validation\Rule;
 
 class UpdateLessonRequest extends FormRequest
@@ -17,8 +18,6 @@ class UpdateLessonRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,13 +32,43 @@ class UpdateLessonRequest extends FormRequest
                 Rule::unique('lessons', 'slug')->ignore($lessonId),
             ],
             'content' => 'required|string|max:2000',
-            'youtube_url' => 'required|url|max:500',
+            'youtube_url' => 'nullable|url|max:500',
+            'google_drive_url' => 'nullable|url|max:500',
+            'course_id' => 'required|exists:courses,id',
             'duration_seconds' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
-            'is_published' => 'boolean',
             'is_free_preview' => 'boolean',
-            'course_id' => 'required|exists:courses,id',
+            'is_published' => 'boolean',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $youtubeUrl = $this->input('youtube_url');
+            $googleDriveUrl = $this->input('google_drive_url');
+
+            if (!$youtubeUrl && !$googleDriveUrl) {
+                $validator->errors()->add('video_url', 'Either YouTube URL or Google Drive URL is required.');
+                return;
+            }
+
+            if ($youtubeUrl && $googleDriveUrl) {
+                $validator->errors()->add('video_url', 'Please provide only one video URL (YouTube OR Google Drive).');
+                return;
+            }
+
+            if ($youtubeUrl && !Lesson::extractYoutubeId($youtubeUrl)) {
+                $validator->errors()->add('youtube_url', 'Invalid YouTube URL format.');
+            }
+
+            if ($googleDriveUrl && !Lesson::extractGoogleDriveId($googleDriveUrl)) {
+                $validator->errors()->add('google_drive_url', 'Invalid Google Drive URL format.');
+            }
+        });
     }
 
     /**

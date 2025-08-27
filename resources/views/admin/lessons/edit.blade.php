@@ -38,21 +38,38 @@
 
                     <div>
                         <label for="content" class="block text-sm font-medium text-white mb-2">
-                            Lesson Content *
+                            Content *
                         </label>
                         <textarea 
                             id="content" 
                             name="content" 
-                            rows="4" 
+                            rows="6" 
                             required 
                             class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
-                            placeholder="Enter lesson content or description">{{ old('content', $lesson->content) }}</textarea>
+                            placeholder="Enter the lesson content...">{{ old('content', $lesson->content) }}</textarea>
                         @error('content')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    <!-- Video Type Selector -->
                     <div>
+                        <label for="video_type" class="block text-sm font-medium text-white mb-2">
+                            Video Type *
+                        </label>
+                        <select 
+                            id="video_type" 
+                            name="video_type" 
+                            required 
+                            onchange="toggleVideoUrlFields()"
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent">
+                            <option value="youtube" {{ old('video_type', $lesson->video_type ?? 'youtube') === 'youtube' ? 'selected' : '' }}>YouTube</option>
+                            <option value="google_drive" {{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? 'selected' : '' }}>Google Drive</option>
+                        </select>
+                    </div>
+
+                    <!-- YouTube URL Field -->
+                    <div id="youtube-url-field" class="{{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? 'hidden' : '' }}">
                         <label for="youtube_url" class="block text-sm font-medium text-white mb-2">
                             YouTube URL *
                         </label>
@@ -61,11 +78,28 @@
                             name="youtube_url" 
                             type="url" 
                             value="{{ old('youtube_url', $lesson->youtube_url) }}" 
-                            required 
                             class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
                             placeholder="https://www.youtube.com/watch?v=...">
                         <p class="mt-1 text-sm text-gray-400">Enter the full YouTube video URL</p>
                         @error('youtube_url')
+                            <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Google Drive URL Field -->
+                    <div id="google-drive-url-field" class="{{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? '' : 'hidden' }}">
+                        <label for="google_drive_url" class="block text-sm font-medium text-white mb-2">
+                            Google Drive URL *
+                        </label>
+                        <input 
+                            id="google_drive_url" 
+                            name="google_drive_url" 
+                            type="url" 
+                            value="{{ old('google_drive_url', $lesson->google_drive_url) }}" 
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
+                            placeholder="https://drive.google.com/file/d/...">
+                        <p class="mt-1 text-sm text-gray-400">Enter the Google Drive sharing URL. Make sure the file is set to "Anyone with the link can view"</p>
+                        @error('google_drive_url')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
@@ -148,4 +182,32 @@
             </x-app.card>
         </div>
     </div>
+
+    <!-- JavaScript for Video Type Toggle -->
+    <script>
+    function toggleVideoUrlFields() {
+        const videoType = document.querySelector('select[name="video_type"]').value;
+        const youtubeField = document.getElementById('youtube-url-field');
+        const googleDriveField = document.getElementById('google-drive-url-field');
+        
+        if (videoType === 'youtube') {
+            youtubeField.classList.remove('hidden');
+            googleDriveField.classList.add('hidden');
+            // Make YouTube URL required
+            document.getElementById('youtube_url').required = true;
+            document.getElementById('google_drive_url').required = false;
+        } else {
+            youtubeField.classList.add('hidden');
+            googleDriveField.classList.remove('hidden');
+            // Make Google Drive URL required
+            document.getElementById('youtube_url').required = false;
+            document.getElementById('google_drive_url').required = true;
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleVideoUrlFields();
+    });
+    </script>
 </x-app-layout>
