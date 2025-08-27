@@ -101,10 +101,10 @@ class Lesson extends Model
     public function getVideoEmbedUrlAttribute(): string
     {
         if ($this->video_type === 'google_drive' && $this->google_drive_url) {
-            return $this->getGoogleDriveEmbedUrl();
+            return $this->google_drive_embed_url; // Fixed: Accessing accessor as a property
         }
         
-        return $this->getYoutubeEmbedUrl();
+        return $this->youtube_embed_url; // Fixed: Accessing accessor as a property
     }
 
     /**
