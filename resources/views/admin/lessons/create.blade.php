@@ -191,25 +191,44 @@
         const videoType = document.querySelector('select[name="video_type"]').value;
         const youtubeField = document.getElementById('youtube-url-field');
         const googleDriveField = document.getElementById('google-drive-url-field');
+        const youtubeInput = document.getElementById('youtube_url');
+        const googleDriveInput = document.getElementById('google_drive_url');
         
         if (videoType === 'youtube') {
             youtubeField.classList.remove('hidden');
             googleDriveField.classList.add('hidden');
-            // Make YouTube URL required
-            document.getElementById('youtube_url').required = true;
-            document.getElementById('google_drive_url').required = false;
+            // Make YouTube URL required and clear Google Drive URL
+            youtubeInput.required = true;
+            googleDriveInput.required = false;
+            googleDriveInput.value = ''; // Clear hidden field
         } else {
             youtubeField.classList.add('hidden');
             googleDriveField.classList.remove('hidden');
-            // Make Google Drive URL required
-            document.getElementById('youtube_url').required = false;
-            document.getElementById('google_drive_url').required = true;
+            // Make Google Drive URL required and clear YouTube URL
+            youtubeInput.required = false;
+            googleDriveInput.required = true;
+            youtubeInput.value = ''; // Clear hidden field
         }
     }
 
-    // Initialize on page load
+    // Form submission handler to ensure clean data
     document.addEventListener('DOMContentLoaded', function() {
         toggleVideoUrlFields();
+        
+        // Handle form submission
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const videoType = document.querySelector('select[name="video_type"]').value;
+            const youtubeInput = document.getElementById('youtube_url');
+            const googleDriveInput = document.getElementById('google_drive_url');
+            
+            // Clear the hidden field value before submission
+            if (videoType === 'youtube') {
+                googleDriveInput.value = '';
+            } else {
+                youtubeInput.value = '';
+            }
+        });
     });
     </script>
 </x-app-layout>
