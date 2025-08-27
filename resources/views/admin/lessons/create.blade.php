@@ -16,6 +16,9 @@
                 <form action="{{ route('admin.lessons.store', $course) }}" method="POST" class="space-y-6">
                     @csrf
                     
+                    <!-- Hidden course_id field -->
+                    <input type="hidden" name="course_id" value="{{ $course->id }}">
+                    
                     <x-app.validation-errors />
                     
                     <div>
