@@ -22,7 +22,6 @@ class StoreLessonRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:lessons,slug',
             'content' => 'required|string|max:2000',
             'youtube_url' => 'nullable|url|max:500',
             'google_drive_url' => 'nullable|url|max:500',
@@ -71,14 +70,12 @@ class StoreLessonRequest extends FormRequest
         return [
             'title.required' => 'Lesson title is required.',
             'title.max' => 'Lesson title cannot exceed 255 characters.',
-            'slug.required' => 'Lesson slug is required.',
-            'slug.unique' => 'This lesson slug is already taken.',
-            'slug.max' => 'Lesson slug cannot exceed 255 characters.',
             'content.required' => 'Lesson content is required.',
             'content.max' => 'Lesson content cannot exceed 2000 characters.',
-            'youtube_url.required' => 'YouTube URL is required.',
             'youtube_url.url' => 'Please provide a valid YouTube URL.',
             'youtube_url.max' => 'YouTube URL cannot exceed 500 characters.',
+            'google_drive_url.url' => 'Please provide a valid Google Drive URL.',
+            'google_drive_url.max' => 'Google Drive URL cannot exceed 500 characters.',
             'duration_seconds.integer' => 'Duration must be a number.',
             'duration_seconds.min' => 'Duration must be at least 1 second.',
             'display_order.integer' => 'Display order must be a number.',

@@ -26,6 +26,9 @@ class AdminLessonController extends Controller
     {
         $data = $request->validated();
         
+        // Generate slug from title
+        $data['slug'] = Str::slug($data['title']);
+        
         // Determine video type and extract IDs
         if ($request->filled('youtube_url')) {
             $data['video_type'] = 'youtube';
@@ -62,6 +65,9 @@ class AdminLessonController extends Controller
     public function update(UpdateLessonRequest $request, Course $course, Lesson $lesson)
     {
         $data = $request->validated();
+        
+        // Generate slug from title
+        $data['slug'] = Str::slug($data['title']);
         
         // Determine video type and extract IDs
         if ($request->filled('youtube_url')) {
