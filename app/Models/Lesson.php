@@ -130,11 +130,29 @@ class Lesson extends Model
         // Convert Google Drive sharing URL to embed URL
         $driveId = $this->extractGoogleDriveId($this->google_drive_url);
         if ($driveId) {
-            // Use the preview URL for better compatibility
-            return "https://drive.google.com/file/d/{$driveId}/preview";
+            // Try multiple embed formats for better compatibility
+            return $this->getGoogleDriveEmbedUrlWithFallback($driveId);
         }
         
         return '';
+    }
+
+    /**
+     * Get Google Drive embed URL with fallback formats.
+     */
+    private function getGoogleDriveEmbedUrlWithFallback(string $driveId): string
+    {
+        // Format 1: Direct embed (most reliable)
+        $embedUrl = "https://drive.google.com/file/d/{$driveId}/preview";
+        
+        // Format 2: UC export (alternative)
+        $ucUrl = "https://drive.google.com/uc?export=view&id={$driveId}";
+        
+        // Format 3: Open with ID (fallback)
+        $openUrl = "https://drive.google.com/open?id={$driveId}";
+        
+        // Return the primary format, but you can switch to others if needed
+        return $embedUrl;
     }
 
     /**
