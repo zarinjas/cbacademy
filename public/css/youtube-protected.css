@@ -26,6 +26,41 @@
     max-width: none;          /* Override default max-width */
 }
 
+/* Mobile-specific adjustments for lesson player */
+@media (max-width: 768px) {
+    .lesson-player-shell {
+        padding: 10px;        /* Reduce padding on mobile */
+        margin-bottom: 1rem;  /* Less space on mobile */
+        /* Debug: Ensure visibility */
+        background: rgba(255, 0, 0, 0.1); /* Temporary red tint to see the area */
+    }
+    
+    .lesson-player-wrap {
+        max-width: 100%;      /* Full width on mobile */
+        margin: 0;            /* No auto margins on mobile */
+        /* Debug: Ensure visibility */
+        background: rgba(0, 255, 0, 0.1); /* Temporary green tint to see the area */
+    }
+    
+    /* Ensure video player is visible on mobile */
+    .lesson-player-wrap .yt-protected,
+    .lesson-player-wrap .cb-video-protected {
+        width: 100%;
+        max-width: none;
+        margin: 0;            /* Remove any margins that might hide it */
+        /* Debug: Ensure visibility */
+        background: rgba(0, 0, 255, 0.1); /* Temporary blue tint to see the area */
+        min-height: 200px;   /* Ensure minimum height on mobile */
+    }
+    
+    /* Make tip more mobile-friendly */
+    .lesson-player-tip {
+        margin-top: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
 /* Tip style */
 .lesson-player-tip {
     margin-top: 10px;
