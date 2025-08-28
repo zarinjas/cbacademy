@@ -40,34 +40,131 @@
         pendingComponents = [];
     }
 
-    // Toggle fullscreen on the stage container
+    // Robust fullscreen toggle with native support and fallback
     function toggleFullscreen(stageEl) {
         const doc = document;
-        if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-            // Enter fullscreen
-            if (stageEl.requestFullscreen) {
-                stageEl.requestFullscreen();
-            } else if (stageEl.webkitRequestFullscreen) {
-                stageEl.webkitRequestFullscreen();
-            } else if (stageEl.msRequestFullscreen) {
-                stageEl.msRequestFullscreen();
-            }
-        } else {
+        const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+        
+        if (isFullscreen) {
             // Exit fullscreen
-            if (doc.exitFullscreen) {
-                doc.exitFullscreen();
-            } else if (doc.webkitExitFullscreen) {
-                doc.webkitExitFullscreen();
-            } else if (doc.msExitFullscreen) {
-                doc.msExitFullscreen();
+            return exitFullscreen();
+        } else {
+            // Enter fullscreen
+            return enterFullscreen(stageEl);
+        }
+    }
+
+    // Enter fullscreen with native support
+    function enterFullscreen(el) {
+        console.log('Attempting native fullscreen...');
+        
+        try {
+            if (el.requestFullscreen) {
+                return el.requestFullscreen({ navigationUI: 'hide' });
+            } else if (el.webkitRequestFullscreen) {
+                return el.webkitRequestFullscreen(); // Safari
+            } else if (el.msRequestFullscreen) {
+                return el.msRequestFullscreen();
+            } else {
+                throw new Error('no-native-fs');
+            }
+        } catch (error) {
+            console.log('Native fullscreen failed, using fallback:', error.message);
+            return enterFakeFullscreen(el);
+        }
+    }
+
+    // Exit fullscreen
+    function exitFullscreen() {
+        const doc = document;
+        
+        if (doc.exitFullscreen) {
+            return doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+            return doc.webkitExitFullscreen();
+        } else if (doc.msExitFullscreen) {
+            return doc.msExitFullscreen();
+        }
+        
+        return Promise.resolve();
+    }
+
+    // Fallback fake fullscreen for devices that don't support native FS
+    function enterFakeFullscreen(el) {
+        console.log('Entering fake fullscreen mode');
+        
+        const component = el.closest('.yt-protected');
+        if (!component) return Promise.reject(new Error('Component not found'));
+        
+        // Create portal container if it doesn't exist
+        let portal = document.getElementById('yt-fs-portal');
+        if (!portal) {
+            portal = document.createElement('div');
+            portal.id = 'yt-fs-portal';
+            document.body.appendChild(portal);
+        }
+        
+        // Store original parent for restoration
+        component.dataset.originalParent = component.parentNode;
+        component.dataset.originalIndex = Array.from(component.parentNode.children).indexOf(component);
+        
+        // Move component to portal
+        portal.appendChild(component);
+        
+        // Add classes
+        component.classList.add('is-fs-fake');
+        document.documentElement.classList.add('no-scroll');
+        document.body.classList.add('no-scroll');
+        
+        // Update fullscreen state
+        component.classList.add('is-fs');
+        
+        console.log('Fake fullscreen entered');
+        return Promise.resolve();
+    }
+
+    // Exit fake fullscreen
+    function exitFakeFullscreen() {
+        console.log('Exiting fake fullscreen mode');
+        
+        const portal = document.getElementById('yt-fs-portal');
+        if (!portal) return;
+        
+        const component = portal.querySelector('.yt-protected');
+        if (!component) return;
+        
+        // Restore to original parent
+        const originalParent = component.dataset.originalParent;
+        const originalIndex = parseInt(component.dataset.originalIndex);
+        
+        if (originalParent) {
+            if (originalIndex === 0) {
+                originalParent.insertBefore(component, originalParent.firstChild);
+            } else {
+                const referenceNode = originalParent.children[originalIndex];
+                originalParent.insertBefore(component, referenceNode);
             }
         }
+        
+        // Remove classes
+        component.classList.remove('is-fs-fake', 'is-fs');
+        document.documentElement.classList.remove('no-scroll');
+        document.body.classList.remove('no-scroll');
+        
+        // Clean up portal if empty
+        if (portal.children.length === 0) {
+            portal.remove();
+        }
+        
+        console.log('Fake fullscreen exited');
     }
 
     // Handle fullscreen change events
     function handleFullscreenChange() {
         const doc = document;
         const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+        
+        console.log('Fullscreen state changed:', isFullscreen);
         
         // Find all YouTube components and update their state
         document.querySelectorAll('.yt-protected').forEach(component => {
@@ -77,15 +174,55 @@
                 component.classList.remove('is-fs');
             }
         });
-        
-        console.log('Fullscreen state changed:', isFullscreen);
     }
 
-    // Wire up fullscreen event listeners
+    // Handle orientation change for mobile devices
+    function handleOrientationChange() {
+        console.log('Orientation changed, updating fullscreen layout');
+        
+        // Force layout recalculation for fullscreen components
+        document.querySelectorAll('.yt-protected.is-fs, .yt-protected.is-fs-fake').forEach(component => {
+            const stage = component.querySelector('.yt-stage');
+            if (stage) {
+                // Trigger reflow
+                stage.style.transform = 'translateZ(0)';
+                setTimeout(() => {
+                    stage.style.transform = '';
+                }, 10);
+            }
+        });
+    }
+
+    // Wire up fullscreen and orientation event listeners
     function wireUpFullscreenEvents() {
         const events = ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'];
         events.forEach(event => {
             document.addEventListener(event, handleFullscreenChange);
+        });
+        
+        // Listen for orientation changes on mobile
+        if ('onorientationchange' in window) {
+            window.addEventListener('orientationchange', handleOrientationChange);
+        } else {
+            window.addEventListener('resize', handleOrientationChange);
+        }
+        
+        // Listen for ESC key to exit fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const doc = document;
+                const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+                
+                if (isFullscreen) {
+                    exitFullscreen();
+                } else {
+                    // Check for fake fullscreen
+                    const fakeFullscreen = document.querySelector('.yt-protected.is-fs-fake');
+                    if (fakeFullscreen) {
+                        exitFakeFullscreen();
+                    }
+                }
+            }
         });
     }
 
@@ -317,20 +454,34 @@
         if (seekBar) {
             let isSeeking = false;
             
-            seekBar.addEventListener('mousedown', () => {
+            seekBar.addEventListener('mousedown', (e) => {
+                e.preventDefault();
                 isSeeking = true;
             });
             
-            seekBar.addEventListener('mouseup', () => {
+            seekBar.addEventListener('mouseup', (e) => {
+                e.preventDefault();
                 isSeeking = false;
             });
             
             seekBar.addEventListener('input', (e) => {
+                e.preventDefault();
                 if (isSeeking) {
                     const duration = player.getDuration();
                     const seekTime = (e.target.value / 100) * duration;
                     player.seekTo(seekTime, true);
                 }
+            });
+            
+            // Mobile touch events
+            seekBar.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isSeeking = true;
+            });
+            
+            seekBar.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                isSeeking = false;
             });
         }
 
@@ -340,6 +491,7 @@
         
         if (volumeBar && volumeIcon) {
             volumeBar.addEventListener('input', (e) => {
+                e.preventDefault();
                 const volume = parseInt(e.target.value);
                 player.setVolume(volume);
                 
@@ -362,7 +514,10 @@
             });
             
             // Click volume icon to mute/unmute
-            volumeIcon.addEventListener('click', () => {
+            volumeIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 if (player.isMuted()) {
                     player.unMute();
                     volumeIcon.textContent = '🔊';
@@ -380,9 +535,11 @@
         // Fullscreen button
         const fsBtn = component.querySelector('.yt-btn-fs');
         if (fsBtn) {
-            fsBtn.addEventListener('click', () => {
+            fsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const stageEl = component.querySelector('.yt-stage');
-                const iframeEl = component.querySelector('iframe');
                 if (stageEl) {
                     toggleFullscreen(stageEl);
                 }

@@ -1,10 +1,15 @@
 @props(['playerId', 'videoId', 'title' => 'Protected YouTube Video'])
 
+<!-- 
+IMPORTANT: Ensure your layout includes this viewport meta tag for mobile fullscreen:
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+-->
+
 <div class="yt-protected" data-player-id="{{ $playerId }}" data-video-id="{{ $videoId }}">
     <div class="yt-stage">
         <!-- YouTube IFrame API will create iframe with proper attributes:
              - allowfullscreen
-             - allow="autoplay; encrypted-media; picture-in-picture; web-share"
+             - allow="fullscreen; autoplay; encrypted-media; picture-in-picture; web-share"
              - referrerpolicy="strict-origin-when-cross-origin"
         -->
         <div id="yt-player-{{ $playerId }}"></div>

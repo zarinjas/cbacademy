@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>YouTube Protected Player - Fullscreen Test</title>
     <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}">
     <style>
@@ -41,6 +41,13 @@
             margin-bottom: 0.5rem;
             color: #d1d5db;
         }
+        .mobile-test {
+            background: #059669;
+            border: 1px solid #047857;
+        }
+        .mobile-test h3 {
+            color: #10b981;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +65,18 @@
                 <li><strong>Click Blocking:</strong> Try clicking anywhere on the video - it should be blocked</li>
                 <li><strong>Custom Controls:</strong> All controls should work in both windowed and fullscreen modes</li>
                 <li><strong>Browser Support:</strong> Tested on Chrome, Edge, Firefox, and Safari</li>
+            </ul>
+        </div>
+
+        <div class="test-info mobile-test">
+            <h3>📱 Mobile Testing (iOS/Android)</h3>
+            <ul>
+                <li><strong>Touch Targets:</strong> All buttons should be at least 44px for easy tapping</li>
+                <li><strong>Fullscreen:</strong> Should work on mobile (native if supported, fallback if not)</li>
+                <li><strong>Orientation:</strong> Test both portrait and landscape modes</li>
+                <li><strong>Touch Controls:</strong> Volume slider should respond to touch gestures</li>
+                <li><strong>Safe Areas:</strong> Controls should respect device safe areas (notches, home indicators)</li>
+                <li><strong>No Double-tap Zoom:</strong> Buttons should not trigger zoom on double-tap</li>
             </ul>
         </div>
 
