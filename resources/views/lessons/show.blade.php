@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Video Player Section - Outside the card for larger display -->
             @if($lesson->has_valid_video)
-                <section class="lesson-player-shell">
+                <section class="lesson-player-shell ios-video-safe">
                     <div class="lesson-player-wrap">
                         @if($lesson->video_type === 'youtube')
                             <x-youtube-protected 

@@ -71,6 +71,15 @@
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
+    
+    /* Safe overrides to ensure player visibility on mobile */
+    .lesson-player-shell, .lesson-player-wrap,
+    .yt-protected, .cb-video-protected,
+    .yt-stage, .vp-stage, iframe, video {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
 }
 
 /* Tip style */
@@ -208,8 +217,15 @@
 .yt-stage {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
     background: #000;
+    overflow: hidden;
+}
+
+/* Fallback: reserve height with padding-bottom (16:9) */
+.yt-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%; /* 16:9 reserve space */
 }
 
 .yt-stage iframe,
@@ -224,9 +240,15 @@
 .vp-stage {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
     background: #000;
     overflow: hidden;
+}
+
+/* Fallback: reserve height with padding-bottom (16:9) */
+.vp-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%; /* 16:9 reserve space */
 }
 
 .vp-iframe {
@@ -247,6 +269,12 @@
     cursor: not-allowed;
     filter: none !important;
     opacity: 1 !important;
+}
+
+/* Controls must stay above mask */
+.yt-controls, .vp-controls {
+    position: relative;
+    z-index: 5;
 }
 
 /* KILL any global tint/overlay/blur applied via pseudo-elements or utility classes */
@@ -608,6 +636,51 @@ body.no-scroll {
     .yt-volume {
         width: 60px;
     }
+    
+    /* Mobile aspect-ratio fallback for iOS */
+    .yt-stage, .vp-stage {
+        aspect-ratio: auto;
+        min-height: 180px;
+    }
+    
+    /* Fallback: reserve height with padding-bottom (16:9) */
+    .yt-stage::before, .vp-stage::before {
+        content: "";
+        display: block;
+        padding-bottom: 56.25%;
+    }
+    
+    .yt-stage > iframe,
+    .yt-stage > div,
+    .vp-stage > video,
+    .vp-stage > iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    /* Safe overrides to ensure player visibility on mobile */
+    .lesson-player-shell, .lesson-player-wrap,
+    .yt-protected, .cb-video-protected,
+    .yt-stage, .vp-stage, iframe, video {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    iframe, video {
+        max-width: 100%;
+    }
+    
+    /* Ensure NO ancestor collapses the stage */
+    .lesson-player-wrap {
+        min-width: 0;
+    }
+    
+    .yt-stage, .vp-stage {
+        flex: 0 0 auto;
+    }
 }
 
 @media (max-width: 480px) {
@@ -747,5 +820,45 @@ body.no-scroll {
     
     .security-notice-enhanced p {
         font-size: 0.875rem;
+    }
+}
+
+/* Prefer native aspect-ratio when supported */
+@supports (aspect-ratio: 16/9) {
+    .yt-stage::before, .vp-stage::before {
+        display: none;
+        padding: 0;
+    }
+    .yt-stage, .vp-stage {
+        aspect-ratio: 16/9;
+    }
+}
+
+/* iOS Video Safe - Remove hardware video blockers */
+@supports (-webkit-touch-callout: none) {
+    .ios-video-safe,
+    .ios-video-safe * {
+        -webkit-filter: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        mix-blend-mode: normal !important;
+        -webkit-transform: none !important;
+        transform: none !important;
+        will-change: auto !important;
+    }
+    
+    /* ensure ancestors don't hide it */
+    .ios-video-safe .lesson-player-wrap,
+    .ios-video-safe .yt-stage,
+    .ios-video-safe .vp-stage {
+        visibility: visible !important;
+        opacity: 1 !important;
+        min-height: 180px; /* floor to avoid 0-height */
+    }
+    
+    /* cards near the player must not clip it on iOS */
+    .ios-video-safe .card,
+    .ios-video-safe .content-protection {
+        overflow: visible !important;
     }
 }

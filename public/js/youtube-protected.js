@@ -38,6 +38,27 @@
         pendingComponents = [];
     }
 
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[player] DOM ready, initializing components');
+        
+        // TEMP debug (remove after)
+        console.log('[ios-debug]', {
+            wrap: document.querySelector('.lesson-player-wrap')?.getBoundingClientRect(),
+            stage: document.querySelector('.yt-stage, .vp-stage')?.getBoundingClientRect(),
+            media: document.querySelector('.yt-stage iframe, .vp-stage video')?.getBoundingClientRect(),
+            ua: navigator.userAgent
+        });
+        
+        initializePendingComponents();
+    });
+
+    // Also listen for any SPA/page-swap events
+    window.addEventListener('load', function() {
+        console.log('[player] Window loaded, checking for pending components');
+        initializePendingComponents();
+    });
+
     // Initialize all pending components
     function initializePendingComponents() {
         pendingComponents.forEach(component => {
@@ -590,6 +611,15 @@
 
     // Initialize component
     function initComponent(playerId, videoId) {
+        // TEMP DEBUG: Log player container dimensions and user agent
+        console.log('[player]', {
+            shell: document.querySelector('.lesson-player-shell')?.getBoundingClientRect(),
+            wrap: document.querySelector('.lesson-player-wrap')?.getBoundingClientRect(),
+            stage: document.querySelector('.yt-stage, .vp-stage')?.getBoundingClientRect(),
+            media: document.querySelector('.yt-stage iframe, .vp-stage video')?.getBoundingClientRect(),
+            ua: navigator.userAgent
+        });
+        
         if (youtubeAPIReady) {
             createPlayer(playerId, videoId);
         } else {
