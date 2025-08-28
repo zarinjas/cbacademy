@@ -20,50 +20,68 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Progress Bar -->
-            <div class="mb-8">
-                <x-app.card>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-gray-300">Course Progress</span>
-                            <span class="text-sm font-medium text-chef-gold">{{ $progressPercentage }}%</span>
-                        </div>
-                        <div class="w-full bg-chef-gray-light rounded-full h-2">
-                            <div class="bg-chef-gold h-2 rounded-full transition-all duration-300" style="width: {{ $progressPercentage }}%"></div>
-                        </div>
-                        <div class="flex items-center justify-between text-xs text-gray-400">
-                            <span>{{ $course->publishedLessons->search($lesson) + 1 }} of {{ $course->publishedLessons->count() }} lessons completed</span>
-                            <span>{{ $course->getTotalDurationFormatted() }} total duration</span>
-                        </div>
-                    </div>
-                </x-app.card>
-            </div>
+    <!-- Include YouTube Protected Player CSS -->
+    <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}">
+    
+    <div class="min-h-screen bg-gray-900">
+        <div class="container mx-auto px-4 py-8">
+            <!-- Breadcrumb -->
+            <nav class="mb-8">
+                <ol class="flex items-center space-x-2 text-sm text-gray-400">
+                    <li><a href="{{ route('dashboard') }}" class="hover:text-white transition-colors">Dashboard</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><a href="{{ route('courses.show', $course) }}" class="hover:text-white transition-colors">{{ $course->title }}</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li class="text-white">{{ $lesson->title }}</li>
+                </ol>
+            </nav>
 
             <!-- Video Player Section -->
             <div class="mb-8">
                 <x-app.card>
                     <div class="space-y-6">
                         <!-- Video Player -->
-                        <div class="relative w-full" style="padding-bottom: 56.25%;">
-                            @if($lesson->video_type === 'google_drive')
-                                <iframe 
-                                    src="{{ $lesson->video_embed_url }}" 
-                                    class="absolute top-0 left-0 w-full h-full rounded-2xl"
-                                    frameborder="0" 
-                                    allowfullscreen
-                                    title="{{ $lesson->title }}"
-                                ></iframe>
+                        <div class="video-player-container">
+                            @if($lesson->video_type === 'youtube')
+                                <!-- Protected YouTube Video Player -->
+                                <x-youtube-protected 
+                                    playerId="lesson-{{ $lesson->id }}" 
+                                    videoId="{{ $lesson->getYouTubeId() }}"
+                                    title="{{ $lesson->title }}" />
+                            @elseif($lesson->video_type === 'google_drive')
+                                <!-- Google Drive Video Player -->
+                                <div class="video-outer" style="position: relative; aspect-ratio: 16/9; width: 100%;">
+                                    <iframe 
+                                        src="{{ $lesson->video_embed_url }}" 
+                                        allowfullscreen
+                                        title="{{ $lesson->title }}"
+                                        id="google-drive-video-iframe"
+                                        style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"
+                                    ></iframe>
+                                    
+                                    <!-- Simple Pop-out Blocker (Top-right corner) -->
+                                    <div class="absolute top-2 right-2 w-12 h-12 bg-gray-800 rounded z-30" style="pointer-events: none;"></div>
+                                    
+                                    <!-- Security Notice -->
+                                    <div class="absolute top-2 left-2 bg-blue-600 text-white text-xs p-2 rounded z-20">
+                                        <strong>Secure:</strong><br>
+                                        Type: Google Drive<br>
+                                        Protected: YES
+                                    </div>
+                                </div>
                             @else
-                                <iframe 
-                                    src="{{ $lesson->video_embed_url }}?rel=0&modestbranding=1" 
-                                    class="absolute top-0 left-0 w-full h-full rounded-2xl"
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen
-                                    title="{{ $lesson->title }}"
-                                ></iframe>
+                                <!-- Fallback for other video types -->
+                                <div class="video-outer" style="position: relative; aspect-ratio: 16/9; width: 100%;">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="text-center text-gray-400">
+                                            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 00-2-2V8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <p class="text-lg font-medium">Video Not Available</p>
+                                            <p class="text-sm">Please contact support</p>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         </div>
 
@@ -98,118 +116,135 @@
                 </x-app.card>
             </div>
 
-            <!-- Navigation Section -->
+            <!-- Security Notice -->
             <div class="mb-8">
                 <x-app.card>
-                    <div class="flex items-center justify-between">
-                        <!-- Previous Lesson -->
-                        <div class="flex-1">
-                            @if($previousLesson)
-                                <a href="{{ route('courses.lessons.show', [$course->slug, $previousLesson->slug]) }}" 
-                                   class="group flex items-center space-x-3 text-left">
-                                    <div class="w-10 h-10 bg-chef-gray-light rounded-xl flex items-center justify-center group-hover:bg-chef-gold transition-colors duration-300">
-                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-chef-black transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-gray-400">Previous Lesson</div>
-                                        <div class="text-sm font-medium text-white group-hover:text-chef-gold transition-colors duration-300">
-                                            {{ Str::limit($previousLesson->title, 40) }}
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <div class="flex items-center space-x-3 text-gray-400">
-                                    <div class="w-10 h-10 bg-chef-gray-light rounded-xl flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs">Previous Lesson</div>
-                                        <div class="text-sm">No previous lesson</div>
-                                    </div>
-                                </div>
-                            @endif
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
                         </div>
-
-                        <!-- Course Progress -->
-                        <div class="text-center mx-4">
-                            <div class="text-2xl font-bold text-chef-gold">{{ $progressPercentage }}%</div>
-                            <div class="text-xs text-gray-400">Complete</div>
-                        </div>
-
-                        <!-- Next Lesson -->
-                        <div class="flex-1 text-right">
-                            @if($nextLesson)
-                                <a href="{{ route('courses.lessons.show', [$course->slug, $nextLesson->slug]) }}" 
-                                   class="group flex items-center justify-end space-x-3">
-                                    <div class="text-right">
-                                        <div class="text-xs text-gray-400">Next Lesson</div>
-                                        <div class="text-sm font-medium text-white group-hover:text-chef-gold transition-colors duration-300">
-                                            {{ Str::limit($nextLesson->title, 40) }}
-                                        </div>
-                                    </div>
-                                    <div class="w-10 h-10 bg-chef-gray-light rounded-xl flex items-center justify-center group-hover:bg-chef-gold transition-colors duration-300">
-                                        <svg class="w-5 h-5 text-gray-400 group-hover:text-chef-black transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </div>
-                                </a>
-                            @else
-                                <div class="flex items-center justify-end space-x-3 text-gray-400">
-                                    <div class="text-right">
-                                        <div class="text-xs">Next Lesson</div>
-                                        <div class="text-sm">Course Complete!</div>
-                                    </div>
-                                    <div class="w-10 h-10 bg-chef-gray-light rounded-xl flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            @endif
+                        <div>
+                            <h4 class="text-sm font-semibold text-white mb-1">Content Protection</h4>
+                            <p class="text-xs text-gray-400">
+                                @if($lesson->video_type === 'youtube')
+                                    This YouTube video is securely embedded with custom controls. Users cannot click into YouTube or access external links while maintaining full video functionality.
+                                @else
+                                    This video is securely embedded and protected. Direct video links are not accessible to maintain content security.
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </x-app.card>
             </div>
 
-            <!-- Course Overview -->
-            <div>
+            <!-- Navigation Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Previous Lesson -->
+                @if($previousLesson)
+                    <x-app.card>
+                        <a href="{{ route('courses.lessons.show', [$course->slug, $previousLesson->slug]) }}" class="block hover:bg-gray-800 transition-colors rounded-xl p-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-1">Previous Lesson</p>
+                                    <h3 class="text-sm font-medium text-white">{{ $previousLesson->title }}</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </x-app.card>
+                @endif
+
+                <!-- Next Lesson -->
+                @if($nextLesson)
+                    <x-app.card>
+                        <a href="{{ route('courses.lessons.show', [$course->slug, $nextLesson->slug]) }}" class="block hover:bg-gray-800 transition-colors rounded-xl p-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="ml-auto">
+                                    <p class="text-xs text-gray-400 mb-1 text-right">Next Lesson</p>
+                                    <h3 class="text-sm font-medium text-white">{{ $nextLesson->title }}</h3>
+                                </div>
+                                <div class="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    </x-app.card>
+                @endif
+            </div>
+
+            <!-- Course Progress -->
+            <div class="mb-8">
                 <x-app.card>
-                    <h3 class="text-xl font-semibold text-white mb-4">Course Overview</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-chef-gold rounded-2xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-chef-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                </svg>
-                            </div>
-                            <div class="text-2xl font-bold text-white">{{ $course->getTotalLessonsCount() }}</div>
-                            <div class="text-sm text-gray-400">Total Lessons</div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-chef-gold rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-8 h-8 text-chef-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                         </div>
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-chef-gold rounded-2xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-chef-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div class="text-2xl font-bold text-white">{{ $course->getTotalDurationFormatted() }}</div>
-                            <div class="text-sm text-gray-400">Total Duration</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-chef-gold rounded-2xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-chef-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div class="text-2xl font-bold text-white">{{ $course->freePreviewLessons()->count() }}</div>
-                            <div class="text-sm text-gray-400">Free Previews</div>
-                        </div>
+                        <div class="text-2xl font-bold text-white">{{ $course->freePreviewLessons()->count() }}</div>
+                        <div class="text-sm text-gray-400">Free Previews</div>
                     </div>
                 </x-app.card>
             </div>
         </div>
     </div>
+    
+    <!-- Include YouTube Protected Player JavaScript -->
+    <script src="{{ asset('js/youtube-protected.js') }}"></script>
+    
+    <!-- Additional Security Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== PROTECTED VIDEO PLAYER LOADED ===');
+            
+            // Prevent right-click context menu on the entire page
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Prevent keyboard shortcuts for save/download
+            document.addEventListener('keydown', function(e) {
+                // Prevent Ctrl+S, Ctrl+Shift+S, F12, Ctrl+U, Ctrl+Shift+I
+                if (
+                    (e.ctrlKey && e.key === 's') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'S') ||
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.key === 'u') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'I')
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Prevent drag and drop
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Handle Google Drive video security (if present)
+            const googleDriveIframe = document.getElementById('google-drive-video-iframe');
+            if (googleDriveIframe) {
+                console.log('Google Drive iframe loaded:', googleDriveIframe.src);
+                
+                googleDriveIframe.addEventListener('load', function() {
+                    console.log('Google Drive iframe loaded successfully');
+                });
+                
+                googleDriveIframe.addEventListener('error', function(e) {
+                    console.error('Google Drive iframe failed to load:', e);
+                });
+            }
+        });
+    </script>
 </x-app-layout>

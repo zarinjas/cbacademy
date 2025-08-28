@@ -29,15 +29,13 @@ class AdminLessonController extends Controller
         // Generate slug from title
         $data['slug'] = Str::slug($data['title']);
         
-        // Determine video type and extract IDs
-        if ($request->filled('youtube_url')) {
-            $data['video_type'] = 'youtube';
-            $data['youtube_id'] = Lesson::extractYoutubeId($request->youtube_url);
+        // Handle video type and URLs based on selection
+        if ($data['video_type'] === 'youtube') {
+            $data['youtube_url'] = $data['youtube_url'] ?? null;
             $data['google_drive_url'] = null;
-        } else {
-            $data['video_type'] = 'google_drive';
+        } elseif ($data['video_type'] === 'google_drive') {
+            $data['google_drive_url'] = $data['google_drive_url'] ?? null;
             $data['youtube_url'] = null;
-            $data['youtube_id'] = null;
         }
 
         $lesson = $course->lessons()->create($data);
@@ -69,15 +67,13 @@ class AdminLessonController extends Controller
         // Generate slug from title
         $data['slug'] = Str::slug($data['title']);
         
-        // Determine video type and extract IDs
-        if ($request->filled('youtube_url')) {
-            $data['video_type'] = 'youtube';
-            $data['youtube_id'] = Lesson::extractYoutubeId($request->youtube_url);
+        // Handle video type and URLs based on selection
+        if ($data['video_type'] === 'youtube') {
+            $data['youtube_url'] = $data['youtube_url'] ?? null;
             $data['google_drive_url'] = null;
-        } else {
-            $data['video_type'] = 'google_drive';
+        } elseif ($data['video_type'] === 'google_drive') {
+            $data['google_drive_url'] = $data['google_drive_url'] ?? null;
             $data['youtube_url'] = null;
-            $data['youtube_id'] = null;
         }
 
         $lesson->update($data);

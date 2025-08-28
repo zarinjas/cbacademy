@@ -15,7 +15,7 @@
             <x-app.card>
                 <form action="{{ route('admin.lessons.update', [$course, $lesson]) }}" method="POST" class="space-y-6">
                     @csrf
-                    @method('PUT')
+                    @method('PATCH')
                     
                     <!-- Hidden course_id field -->
                     <input type="hidden" name="course_id" value="{{ $course->id }}">
@@ -55,7 +55,7 @@
                         @enderror
                     </div>
 
-                    <!-- Video Type Selector -->
+                    <!-- Video Type Selection -->
                     <div>
                         <label for="video_type" class="block text-sm font-medium text-white mb-2">
                             Video Type *
@@ -63,16 +63,20 @@
                         <select 
                             id="video_type" 
                             name="video_type" 
-                            required 
-                            onchange="toggleVideoUrlFields()"
-                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent">
-                            <option value="youtube" {{ old('video_type', $lesson->video_type ?? 'youtube') === 'youtube' ? 'selected' : '' }}>YouTube</option>
-                            <option value="google_drive" {{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? 'selected' : '' }}>Google Drive</option>
+                            required
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
+                            onchange="toggleVideoUrlField()">
+                            <option value="">Select video type</option>
+                            <option value="youtube" {{ old('video_type', $lesson->video_type) === 'youtube' ? 'selected' : '' }}>YouTube Video</option>
+                            <option value="google_drive" {{ old('video_type', $lesson->video_type) === 'google_drive' ? 'selected' : '' }}>Google Drive Video</option>
                         </select>
+                        @error('video_type')
+                            <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- YouTube URL Field -->
-                    <div id="youtube-url-field" class="{{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? 'hidden' : '' }}">
+                    <div id="youtube_url_field" style="display: none;">
                         <label for="youtube_url" class="block text-sm font-medium text-white mb-2">
                             YouTube URL *
                         </label>
@@ -82,15 +86,35 @@
                             type="url" 
                             value="{{ old('youtube_url', $lesson->youtube_url) }}" 
                             class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
-                            placeholder="https://www.youtube.com/watch?v=...">
-                        <p class="mt-1 text-sm text-gray-400">Enter the full YouTube video URL</p>
+                            placeholder="https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID">
+                        
+                        <!-- Security Notice for YouTube -->
+                        <div class="mt-3 p-3 bg-red-900/20 border border-red-600/30 rounded-xl">
+                            <div class="flex items-start space-x-2">
+                                <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-red-300 mb-1">YouTube Security Features</h4>
+                                    <ul class="text-xs text-red-200 space-y-1">
+                                        <li>• Videos are embedded with security measures</li>
+                                        <li>• External YouTube elements are blocked</li>
+                                        <li>• Users cannot click through to YouTube</li>
+                                        <li>• Video controls remain fully functional</li>
+                                        <li>• ✅ Supported formats: youtu.be, youtube.com/watch, youtube.com/embed</li>
+                                        <li>• 🔒 Automatic security: modestbranding, no related videos, playsinline</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
                         @error('youtube_url')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Google Drive URL Field -->
-                    <div id="google-drive-url-field" class="{{ old('video_type', $lesson->video_type ?? 'youtube') === 'google_drive' ? '' : 'hidden' }}">
+                    <div id="google_drive_url_field" style="display: none;">
                         <label for="google_drive_url" class="block text-sm font-medium text-white mb-2">
                             Google Drive URL *
                         </label>
@@ -101,7 +125,27 @@
                             value="{{ old('google_drive_url', $lesson->google_drive_url) }}" 
                             class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
                             placeholder="https://drive.google.com/file/d/...">
-                        <p class="mt-1 text-sm text-gray-400">Enter the Google Drive sharing URL. Make sure the file is set to "Anyone with the link can view"</p>
+                        
+                        <!-- Security Notice for Google Drive -->
+                        <div class="mt-3 p-3 bg-blue-900/20 border border-blue-600/30 rounded-xl">
+                            <div class="flex items-start space-x-2">
+                                <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-blue-300 mb-1">Security Recommendations</h4>
+                                    <ul class="text-xs text-blue-200 space-y-1">
+                                        <li>• Set file sharing to <strong>"Anyone with the link can view"</strong></li>
+                                        <li>• Use <strong>unlisted</strong> sharing for better content protection</li>
+                                        <li>• The video URL will be hidden from users in the player</li>
+                                        <li>• Users can only watch videos on your site</li>
+                                        <li>• ✅ Correct: <code class="bg-gray-700 px-1 rounded">https://drive.google.com/file/d/FILE_ID/view</code></li>
+                                        <li>• ❌ Wrong: <code class="bg-gray-700 px-1 rounded">https://drive.google.com/uc?export=download&id=FILE_ID</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
                         @error('google_drive_url')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
@@ -186,50 +230,28 @@
         </div>
     </div>
 
-    <!-- JavaScript for Video Type Toggle -->
     <script>
-    function toggleVideoUrlFields() {
-        const videoType = document.querySelector('select[name="video_type"]').value;
-        const youtubeField = document.getElementById('youtube-url-field');
-        const googleDriveField = document.getElementById('google-drive-url-field');
-        const youtubeInput = document.getElementById('youtube_url');
-        const googleDriveInput = document.getElementById('google_drive_url');
-        
-        if (videoType === 'youtube') {
-            youtubeField.classList.remove('hidden');
-            googleDriveField.classList.add('hidden');
-            // Make YouTube URL required and clear Google Drive URL
-            youtubeInput.required = true;
-            googleDriveInput.required = false;
-            googleDriveInput.value = ''; // Clear hidden field
-        } else {
-            youtubeField.classList.add('hidden');
-            googleDriveField.classList.remove('hidden');
-            // Make Google Drive URL required and clear YouTube URL
-            youtubeInput.required = false;
-            googleDriveInput.required = true;
-            youtubeInput.value = ''; // Clear hidden field
-        }
-    }
+        function toggleVideoUrlField() {
+            const videoType = document.getElementById('video_type').value;
+            const youtubeUrlField = document.getElementById('youtube_url_field');
+            const googleDriveUrlField = document.getElementById('google_drive_url_field');
 
-    // Form submission handler to ensure clean data
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleVideoUrlFields();
-        
-        // Handle form submission
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            const videoType = document.querySelector('select[name="video_type"]').value;
-            const youtubeInput = document.getElementById('youtube_url');
-            const googleDriveInput = document.getElementById('google_drive_url');
-            
-            // Clear the hidden field value before submission
             if (videoType === 'youtube') {
-                googleDriveInput.value = '';
+                youtubeUrlField.style.display = 'block';
+                googleDriveUrlField.style.display = 'none';
+            } else if (videoType === 'google_drive') {
+                youtubeUrlField.style.display = 'none';
+                googleDriveUrlField.style.display = 'block';
             } else {
-                youtubeInput.value = '';
+                youtubeUrlField.style.display = 'none';
+                googleDriveUrlField.style.display = 'none';
             }
+        }
+
+        // Initial call to set the correct field visibility on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleVideoUrlField();
         });
-    });
     </script>
+
 </x-app-layout>

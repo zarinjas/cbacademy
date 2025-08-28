@@ -53,9 +53,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course:slug}', [CourseController::class, 'show'])->name('courses.show');
     
-    // Lessons routes
-    Route::get('/courses/{course:slug}/lessons/{lesson:slug}', [LessonController::class, 'show'])
-        ->name('courses.lessons.show');
+    // Lessons routes with scope bindings
+    Route::scopeBindings()->group(function () {
+        Route::get('/courses/{course:slug}/lessons/{lesson:slug}', [LessonController::class, 'show'])
+            ->name('courses.lessons.show');
+    });
     
     // Admin routes - Only for admins
     Route::middleware(['role:admin', 'throttle:admin'])->prefix('admin')->name('admin.')->group(function () {

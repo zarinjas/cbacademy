@@ -44,6 +44,14 @@ class Lesson extends Model
     ];
 
     /**
+     * Get the route key name for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Get the course that owns the lesson.
      */
     public function course(): BelongsTo
@@ -96,26 +104,60 @@ class Lesson extends Model
     }
 
     /**
-     * Get the video embed URL based on video type.
+     * Get the video embed URL (Google Drive only).
      */
-    public function getVideoEmbedUrlAttribute(): string
+    public function getVideoEmbedUrlAttribute(): ?string
     {
-        if ($this->video_type === 'google_drive' && $this->google_drive_url) {
-            return $this->google_drive_embed_url; // Fixed: Accessing accessor as a property
+        if ($this->video_type === 'youtube' && !empty($this->youtube_url)) {
+            return $this->getYouTubeEmbedUrl();
+        } elseif ($this->video_type === 'google_drive' && !empty($this->google_drive_url)) {
+            return $this->getGoogleDriveEmbedUrlWithFallback($this->getGoogleDriveId());
         }
         
-        return $this->youtube_embed_url; // Fixed: Accessing accessor as a property
+        return null;
     }
 
-    /**
-     * Get the YouTube embed URL.
-     */
-    public function getYoutubeEmbedUrlAttribute(): string
+    private function getYouTubeEmbedUrl(): string
     {
-        if (!$this->youtube_id) {
+        $videoId = $this->getYouTubeId();
+        if (!$videoId) {
             return '';
         }
-        return "https://www.youtube.com/embed/{$this->youtube_id}";
+        
+        // Build YouTube embed URL with security parameters
+        $params = [
+            'modestbranding' => '1',
+            'rel' => '0',
+            'playsinline' => '1',
+            'disablekb' => '1',
+            'controls' => '1'
+        ];
+        
+        $queryString = http_build_query($params);
+        return "https://www.youtube.com/embed/{$videoId}?{$queryString}";
+    }
+
+    public function getYouTubeId(): ?string
+    {
+        if (empty($this->youtube_url)) {
+            return null;
+        }
+
+        // Handle various YouTube URL formats
+        $patterns = [
+            '/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/',
+            '/youtu\.be\/([a-zA-Z0-9_-]+)/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]+)/'
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $this->youtube_url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -138,44 +180,21 @@ class Lesson extends Model
     }
 
     /**
-     * Get Google Drive embed URL with fallback formats.
+     * Get Google Drive embed URL with restricted parameters.
      */
     private function getGoogleDriveEmbedUrlWithFallback(string $driveId): string
     {
-        // Format 1: Direct embed (most reliable)
-        $embedUrl = "https://drive.google.com/file/d/{$driveId}/preview";
-        
-        // Format 2: UC export (alternative)
-        $ucUrl = "https://drive.google.com/uc?export=view&id={$driveId}";
-        
-        // Format 3: Open with ID (fallback)
-        $openUrl = "https://drive.google.com/open?id={$driveId}";
-        
-        // Return the primary format, but you can switch to others if needed
-        return $embedUrl;
+        // Use the standard working Google Drive embed format
+        // This format is known to work and display videos properly
+        return "https://drive.google.com/file/d/{$driveId}/preview";
     }
 
     /**
-     * Get the video thumbnail URL.
+     * Get the video thumbnail URL (Google Drive only).
      */
     public function getVideoThumbnailAttribute(): string
     {
-        if ($this->video_type === 'google_drive') {
-            return $this->getGoogleDriveThumbnail();
-        }
-        
-        return $this->getYoutubeThumbnail();
-    }
-
-    /**
-     * Get the YouTube thumbnail URL.
-     */
-    public function getYoutubeThumbnailAttribute(): string
-    {
-        if (!$this->youtube_id) {
-            return '';
-        }
-        return "https://img.youtube.com/vi/{$this->youtube_id}/maxresdefault.jpg";
+        return $this->getGoogleDriveThumbnail();
     }
 
     /**
@@ -293,14 +312,10 @@ class Lesson extends Model
     }
 
     /**
-     * Determine video type from URL.
+     * Determine video type from URL (Google Drive only).
      */
     public static function determineVideoType(string $url): string
     {
-        if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
-            return 'youtube';
-        }
-        
         if (str_contains($url, 'drive.google.com')) {
             return 'google_drive';
         }
@@ -311,17 +326,9 @@ class Lesson extends Model
     /**
      * Check if lesson has a valid video.
      */
-    public function hasVideo(): bool
+    public function hasValidVideo(): bool
     {
-        if ($this->video_type === 'youtube') {
-            return !empty($this->youtube_url) && !empty($this->youtube_id);
-        }
-        
-        if ($this->video_type === 'google_drive') {
-            return !empty($this->google_drive_url);
-        }
-        
-        return false;
+        return $this->video_type === 'google_drive' && !empty($this->google_drive_url);
     }
 
     /**
@@ -329,10 +336,107 @@ class Lesson extends Model
      */
     public function getVideoSourceAttribute(): string
     {
-        if ($this->video_type === 'google_drive') {
-            return 'Google Drive';
+        return 'Google Drive';
+    }
+
+    /**
+     * Get secure YouTube embed URL with restricted parameters.
+     */
+    public function getSecureYoutubeEmbedUrlAttribute(): string
+    {
+        if (!$this->youtube_id) {
+            return '';
         }
         
-        return 'YouTube';
+        // Build secure embed URL with restricted parameters
+        $params = [
+            'rel' => '0',                    // No related videos
+            'modestbranding' => '1',         // Minimal YouTube branding
+            'controls' => '1',               // Show player controls
+            'disablekb' => '1',              // Disable keyboard controls
+            'fs' => '1',                     // Allow fullscreen
+            'iv_load_policy' => '3',         // Hide video annotations
+            'cc_load_policy' => '0',         // Hide closed captions by default
+            'showinfo' => '0',               // Hide video title and uploader info
+            'color' => 'white',              // White player color
+            'playsinline' => '1',            // Play inline on mobile
+        ];
+        
+        $queryString = http_build_query($params);
+        return "https://www.youtube.com/embed/{$this->youtube_id}?{$queryString}";
+    }
+
+    /**
+     * Check if lesson has Google Drive video.
+     */
+    public function hasGoogleDriveVideo(): bool
+    {
+        return $this->video_type === 'google_drive' && !empty($this->google_drive_url);
+    }
+
+    /**
+     * Get YouTube video duration in seconds (if available).
+     */
+    public function getYoutubeDurationAttribute(): ?int
+    {
+        // This would require YouTube API integration for actual duration
+        // For now, return the stored duration_seconds
+        return $this->duration_seconds;
+    }
+
+    /**
+     * Get YouTube video privacy status (assumed unlisted for security).
+     */
+    public function getYoutubePrivacyStatusAttribute(): string
+    {
+        // This would require YouTube API integration
+        // For security, assume all videos are unlisted
+        return 'unlisted';
+    }
+
+    /**
+     * Check if video is securely configured.
+     */
+    public function isSecurelyConfigured(): bool
+    {
+        if ($this->video_type === 'youtube') {
+            // Ensure YouTube video is properly configured
+            return !empty($this->youtube_id) && !empty($this->youtube_url);
+        }
+        
+        if ($this->video_type === 'google_drive') {
+            // Ensure Google Drive video is properly configured
+            return !empty($this->google_drive_url);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get security recommendations for this lesson.
+     */
+    public function getSecurityRecommendations(): array
+    {
+        $recommendations = [];
+        
+        if ($this->video_type === 'youtube') {
+            if (empty($this->youtube_id)) {
+                $recommendations[] = 'YouTube video ID not properly extracted';
+            }
+            
+            if (str_contains($this->youtube_url ?? '', 'youtube.com/watch')) {
+                $recommendations[] = 'Consider using unlisted YouTube videos for better security';
+            }
+        }
+        
+        if ($this->video_type === 'google_drive') {
+            if (empty($this->google_drive_url)) {
+                $recommendations[] = 'Google Drive URL not properly configured';
+            }
+            
+            $recommendations[] = 'Ensure Google Drive sharing is set to "Anyone with the link can view"';
+        }
+        
+        return $recommendations;
     }
 }

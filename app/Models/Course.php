@@ -36,6 +36,14 @@ class Course extends Model
     ];
 
     /**
+     * Get the route key name for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Get the lessons for the course.
      */
     public function lessons(): HasMany

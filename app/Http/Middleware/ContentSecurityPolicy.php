@@ -20,12 +20,12 @@ class ContentSecurityPolicy
         // Content Security Policy
         $csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com https://www.google.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
-            "img-src 'self' data: https: blob:",
+            "img-src 'self' data: https: blob: https://i.ytimg.com https://*.ggpht.com",
             "media-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://drive.google.com",
-            "frame-src 'self' https://www.youtube-nocookie.com https://drive.google.com",
+            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://www.google.com",
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self'",

@@ -23,6 +23,7 @@ class StoreLessonRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'content' => 'required|string|max:2000',
+            'video_type' => 'required|in:youtube,google_drive',
             'youtube_url' => 'nullable|url|max:500',
             'google_drive_url' => 'nullable|url|max:500',
             'course_id' => 'required|exists:courses,id',
@@ -39,25 +40,29 @@ class StoreLessonRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            $videoType = $this->input('video_type');
             $youtubeUrl = $this->input('youtube_url');
             $googleDriveUrl = $this->input('google_drive_url');
 
-            if (!$youtubeUrl && !$googleDriveUrl) {
-                $validator->errors()->add('video_url', 'Either YouTube URL or Google Drive URL is required.');
-                return;
-            }
-
-            if ($youtubeUrl && $googleDriveUrl) {
-                $validator->errors()->add('video_url', 'Please provide only one video URL (YouTube OR Google Drive).');
-                return;
-            }
-
-            if ($youtubeUrl && !Lesson::extractYoutubeId($youtubeUrl)) {
-                $validator->errors()->add('youtube_url', 'Invalid YouTube URL format.');
-            }
-
-            if ($googleDriveUrl && !Lesson::extractGoogleDriveId($googleDriveUrl)) {
-                $validator->errors()->add('google_drive_url', 'Invalid Google Drive URL format.');
+            // Validate based on video type
+            if ($videoType === 'youtube') {
+                if (!$youtubeUrl) {
+                    $validator->errors()->add('youtube_url', 'YouTube URL is required when YouTube is selected.');
+                    return;
+                }
+                
+                if (!Lesson::extractYoutubeId($youtubeUrl)) {
+                    $validator->errors()->add('youtube_url', 'Invalid YouTube URL format.');
+                }
+            } elseif ($videoType === 'google_drive') {
+                if (!$googleDriveUrl) {
+                    $validator->errors()->add('google_drive_url', 'Google Drive URL is required when Google Drive is selected.');
+                    return;
+                }
+                
+                if (!Lesson::extractGoogleDriveId($googleDriveUrl)) {
+                    $validator->errors()->add('google_drive_url', 'Invalid Google Drive URL format.');
+                }
             }
         });
     }
