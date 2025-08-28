@@ -1,6 +1,7 @@
 /**
  * YouTube Protected Player - Custom Controls with IFrame API
  * Prevents users from clicking into YouTube while maintaining full functionality
+ * Mobile-first fullscreen implementation with iframe priority
  */
 
 (function() {
@@ -40,53 +41,54 @@
         pendingComponents = [];
     }
 
-    // Robust fullscreen toggle with native support and fallback
-    function toggleFullscreen(stageEl) {
-        const doc = document;
-        const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+    // Robust fullscreen toggle with iframe priority for mobile
+    function enterFSPreferIframe(iframeEl, stageEl) {
+        const reqs = [
+            () => iframeEl?.requestFullscreen?.(),
+            () => iframeEl?.webkitRequestFullscreen?.(),   // Safari
+            () => stageEl?.requestFullscreen?.(),
+            () => stageEl?.webkitRequestFullscreen?.()
+        ];
         
-        if (isFullscreen) {
-            // Exit fullscreen
-            return exitFullscreen();
-        } else {
-            // Enter fullscreen
-            return enterFullscreen(stageEl);
+        for (const fn of reqs) {
+            try {
+                const r = fn && fn();
+                if (r && typeof r.then === 'function') return r;
+                if (r === undefined) return Promise.resolve();
+            } catch(e) {
+                console.log('Fullscreen method failed:', e);
+            }
         }
+        return Promise.reject(new Error('no-native-fs'));
     }
 
-    // Enter fullscreen with native support
-    function enterFullscreen(el) {
-        console.log('Attempting native fullscreen...');
+    function exitFS() {
+        const d = document;
+        return (d.exitFullscreen?.() || d.webkitExitFullscreen?.() || Promise.resolve());
+    }
+
+    async function toggleFullscreen(root) {
+        const stage = root.querySelector('.yt-stage');
+        const iframe = stage?.querySelector('iframe');
+        const d = document;
         
         try {
-            if (el.requestFullscreen) {
-                return el.requestFullscreen({ navigationUI: 'hide' });
-            } else if (el.webkitRequestFullscreen) {
-                return el.webkitRequestFullscreen(); // Safari
-            } else if (el.msRequestFullscreen) {
-                return el.msRequestFullscreen();
+            if (!d.fullscreenElement && !d.webkitFullscreenElement) {
+                console.log('Attempting to enter fullscreen...');
+                await enterFSPreferIframe(iframe, stage);
+                root.classList.add('is-fs');
+                console.log('Fullscreen entered successfully');
             } else {
-                throw new Error('no-native-fs');
+                console.log('Exiting fullscreen...');
+                await exitFS();
+                root.classList.remove('is-fs');
+                console.log('Fullscreen exited successfully');
             }
-        } catch (error) {
-            console.log('Native fullscreen failed, using fallback:', error.message);
-            return enterFakeFullscreen(el);
+        } catch (e) {
+            console.warn('Native fullscreen failed:', e?.message);
+            // Fallback: fake fullscreen via top-level portal
+            enterFakeFullscreen(root);
         }
-    }
-
-    // Exit fullscreen
-    function exitFullscreen() {
-        const doc = document;
-        
-        if (doc.exitFullscreen) {
-            return doc.exitFullscreen();
-        } else if (doc.webkitExitFullscreen) {
-            return doc.webkitExitFullscreen();
-        } else if (doc.msExitFullscreen) {
-            return doc.msExitFullscreen();
-        }
-        
-        return Promise.resolve();
     }
 
     // Fallback fake fullscreen for devices that don't support native FS
@@ -214,7 +216,7 @@
                 const isFullscreen = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
                 
                 if (isFullscreen) {
-                    exitFullscreen();
+                    exitFS();
                 } else {
                     // Check for fake fullscreen
                     const fakeFullscreen = document.querySelector('.yt-protected.is-fs-fake');
@@ -226,29 +228,15 @@
         });
     }
 
-    // Initialize fullscreen events
-    wireUpFullscreenEvents();
-
-    // Create YouTube player instance
+    // Create player with security parameters
     function createPlayer(playerId, videoId) {
-        if (players[playerId]) {
-            return players[playerId];
-        }
-
-        const playerElement = document.getElementById(`yt-player-${playerId}`);
-        if (!playerElement) {
-            console.error(`Player element not found: yt-player-${playerId}`);
-            return null;
-        }
-
-        // Create player with security parameters
         const player = new YT.Player(`yt-player-${playerId}`, {
             videoId: videoId,
             playerVars: {
                 enablejsapi: 1,        // Enable JavaScript API
                 modestbranding: 1,     // Hide YouTube branding
                 rel: 0,                // Don't show related videos
-                playsinline: 1,        // Play inline on mobile
+                playsinline: 1,        // Play inline on mobile (essential for iOS)
                 fs: 1,                 // Enable fullscreen
                 controls: 1,           // Show some controls for better compatibility
                 showinfo: 0,           // Hide video info
@@ -263,8 +251,20 @@
                 onError: (event) => onPlayerError(event, playerId)
             }
         });
-
+        
         players[playerId] = player;
+        
+        // Ensure iframe has proper fullscreen attributes after creation
+        setTimeout(() => {
+            const iframe = document.querySelector(`#yt-player-${playerId} iframe`);
+            if (iframe) {
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media; picture-in-picture; web-share');
+                iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                console.log('Iframe attributes set for fullscreen support');
+            }
+        }, 100);
+        
         return player;
     }
 
@@ -273,16 +273,13 @@
         console.log(`Player ${playerId} ready`);
         const component = document.querySelector(`[data-player-id="${playerId}"]`);
         if (component) {
-            // Debug audio state
             const player = players[playerId];
             if (player) {
-                console.log(`Audio state for ${playerId}:`, {
+                console.log(`Initial audio state for ${playerId}:`, {
                     isMuted: player.isMuted(),
                     volume: player.getVolume(),
                     playerState: player.getPlayerState()
                 });
-                
-                // Ensure audio is not muted and volume is set
                 try {
                     if (player.isMuted()) {
                         console.log(`Unmuting player ${playerId}`);
@@ -290,8 +287,6 @@
                     }
                     player.setVolume(100);
                     console.log(`Set volume to 100 for player ${playerId}`);
-                    
-                    // Log final audio state
                     console.log(`Final audio state for ${playerId}:`, {
                         isMuted: player.isMuted(),
                         volume: player.getVolume(),
@@ -301,11 +296,7 @@
                     console.warn(`Could not set audio state for player ${playerId}:`, e);
                 }
             }
-            
-            // Wire up controls
             wireUpControls(playerId, component);
-            
-            // Start time updates for seek bar
             startTimeUpdates(playerId);
         }
     }
@@ -319,20 +310,15 @@
         const pauseBtn = component.querySelector('.yt-btn-pause');
         const muteBtn = component.querySelector('.yt-btn-mute');
         const unmuteBtn = component.querySelector('.yt-btn-unmute');
+        const player = players[playerId];
 
-        // Update play/pause button states
         if (event.data === YT.PlayerState.PLAYING) {
             playBtn.style.display = 'none';
             pauseBtn.style.display = 'inline-flex';
-            
-            // Ensure audio is not muted when playing
-            const player = players[playerId];
             if (player && player.isMuted()) {
                 console.log(`Player ${playerId} was muted while playing, unmuting...`);
                 player.unMute();
             }
-            
-            // Log audio state when playing
             console.log(`Audio state while playing for ${playerId}:`, {
                 isMuted: player.isMuted(),
                 volume: player.getVolume(),
@@ -343,8 +329,7 @@
             pauseBtn.style.display = 'none';
         }
 
-        // Update mute button states
-        if (event.target.isMuted()) {
+        if (player.isMuted()) {
             muteBtn.style.display = 'none';
             unmuteBtn.style.display = 'inline-flex';
         } else {
@@ -355,22 +340,7 @@
 
     // Player error event handler
     function onPlayerError(event, playerId) {
-        console.error(`YouTube player error: ${playerId}`, event.data);
-        const component = document.querySelector(`[data-player-id="${playerId}"]`);
-        if (component) {
-            const loading = component.querySelector(`#yt-loading-${playerId}`);
-            if (loading) {
-                loading.innerHTML = `
-                    <div class="yt-error">
-                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p>Video failed to load</p>
-                        <small>Error code: ${event.data}</small>
-                    </div>
-                `;
-            }
-        }
+        console.error(`Player ${playerId} error:`, event.data);
     }
 
     // Wire up custom controls
@@ -381,7 +351,10 @@
         // Play button
         const playBtn = component.querySelector('.yt-btn-play');
         if (playBtn) {
-            playBtn.addEventListener('click', () => {
+            playBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 console.log(`Play button clicked for player ${playerId}`);
                 
                 // Ensure audio is ready before playing
@@ -419,8 +392,8 @@
                         });
                     }, 100);
                     
-                } catch (e) {
-                    console.error(`Error playing video for player ${playerId}:`, e);
+                } catch (error) {
+                    console.error(`Error playing video for player ${playerId}:`, error);
                 }
             });
         }
@@ -428,7 +401,9 @@
         // Pause button
         const pauseBtn = component.querySelector('.yt-btn-pause');
         if (pauseBtn) {
-            pauseBtn.addEventListener('click', () => {
+            pauseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 player.pauseVideo();
             });
         }
@@ -436,7 +411,9 @@
         // Mute button
         const muteBtn = component.querySelector('.yt-btn-mute');
         if (muteBtn) {
-            muteBtn.addEventListener('click', () => {
+            muteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 player.mute();
             });
         }
@@ -444,7 +421,9 @@
         // Unmute button
         const unmuteBtn = component.querySelector('.yt-btn-unmute');
         if (unmuteBtn) {
-            unmuteBtn.addEventListener('click', () => {
+            unmuteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 player.unMute();
             });
         }
@@ -535,104 +514,85 @@
         // Fullscreen button
         const fsBtn = component.querySelector('.yt-btn-fs');
         if (fsBtn) {
+            // Use pointerup for better mobile support, with click fallback
+            fsBtn.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFullscreen(component);
+            }, { passive: true });
+            
+            // Fallback for devices without pointer events
             fsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                const stageEl = component.querySelector('.yt-stage');
-                if (stageEl) {
-                    toggleFullscreen(stageEl);
-                }
+                toggleFullscreen(component);
             });
         }
     }
 
     // Start time updates for seek bar
     function startTimeUpdates(playerId) {
-        const component = document.querySelector(`[data-player-id="${playerId}"]`);
-        if (!component) return;
-        
-        const seekBar = component.querySelector('.yt-seek');
-        if (!seekBar) return;
-        
         setInterval(() => {
             const player = players[playerId];
-            if (player && player.getCurrentTime && player.getDuration) {
-                try {
-                    const currentTime = player.getCurrentTime();
-                    const duration = player.getDuration();
-                    
-                    if (duration > 0) {
-                        const progress = (currentTime / duration) * 100;
-                        seekBar.value = progress;
+            if (!player) return;
+            
+            try {
+                const currentTime = player.getCurrentTime();
+                const duration = player.getDuration();
+                
+                if (duration > 0) {
+                    const progress = (currentTime / duration) * 100;
+                    const component = document.querySelector(`[data-player-id="${playerId}"]`);
+                    if (component) {
+                        const seekBar = component.querySelector('.yt-seek');
+                        if (seekBar) {
+                            seekBar.value = progress;
+                        }
                     }
-                } catch (e) {
-                    // Player not ready yet
                 }
+            } catch (e) {
+                // Player might not be ready yet
             }
         }, 1000);
     }
 
-    // Initialize a component instance
+    // Initialize component
+    function initComponent(playerId, videoId) {
+        if (youtubeAPIReady) {
+            createPlayer(playerId, videoId);
+        } else {
+            pendingComponents.push({ playerId, videoId });
+        }
+    }
+
+    // Public API
     window.YouTubeProtectedPlayer = {
-        // Initialize a component instance
-        initComponent: function(playerId, videoId) {
-            if (youtubeAPIReady) {
-                createPlayer(playerId, videoId);
-            } else {
-                pendingComponents.push({ playerId, videoId });
-            }
-        },
-
-        // Get player instance
+        initComponent: initComponent,
         getPlayer: function(playerId) {
-            return players[playerId] || null;
+            return players[playerId];
         },
-
-        // Destroy player instance
         destroyPlayer: function(playerId) {
-            if (players[playerId]) {
-                players[playerId].destroy();
+            const player = players[playerId];
+            if (player) {
+                player.destroy();
                 delete players[playerId];
             }
         },
-
-        // Test audio functionality
         testAudio: function(playerId) {
             const player = players[playerId];
-            if (!player) {
-                console.error(`Player ${playerId} not found`);
-                return false;
-            }
-            
-            try {
-                const audioState = {
+            if (player) {
+                console.log(`Audio test for player ${playerId}:`, {
                     isMuted: player.isMuted(),
                     volume: player.getVolume(),
-                    playerState: player.getPlayerState(),
-                    canPlay: player.getPlayerState() === YT.PlayerState.PLAYING
-                };
-                
-                console.log(`Audio test for player ${playerId}:`, audioState);
-                
-                // Try to unmute and set volume
-                if (audioState.isMuted) {
-                    player.unMute();
-                    console.log(`Unmuted player ${playerId}`);
-                }
-                
-                player.setVolume(100);
-                console.log(`Set volume to 100 for player ${playerId}`);
-                
-                return true;
-            } catch (e) {
-                console.error(`Audio test failed for player ${playerId}:`, e);
-                return false;
+                    playerState: player.getPlayerState()
+                });
             }
         }
     };
 
-    // Auto-load YouTube API when script loads
+    // Initialize fullscreen events
+    wireUpFullscreenEvents();
+    
+    // Load YouTube API
     loadYouTubeAPI();
-
 })();
