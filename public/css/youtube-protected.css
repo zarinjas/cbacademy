@@ -8,6 +8,155 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
+/* Lesson Player Layout - New larger display */
+.lesson-player-shell {
+    padding: 20px;            /* ~20px from edges */
+    margin-bottom: 2rem;      /* Space between player and card */
+}
+
+.lesson-player-wrap {
+    max-width: 1280px;        /* give it room to be bigger than the card */
+    margin: 0 auto;
+}
+
+/* Make our player use full width of the wrap */
+.lesson-player-wrap .yt-protected,
+.lesson-player-wrap .cb-video-protected {
+    width: 100%;
+    max-width: none;          /* Override default max-width */
+}
+
+/* Tip style */
+.lesson-player-tip {
+    margin-top: 10px;
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    transition: all 0.3s ease;
+}
+
+.lesson-player-tip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
+}
+
+.lesson-player-tip .tip-dot {
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    display: inline-block;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.lesson-player-tip strong {
+    font-weight: 600;
+    color: #92400e;
+}
+
+.lesson-player-tip svg {
+    transition: transform 0.3s ease;
+}
+
+.lesson-player-tip:hover svg {
+    transform: scale(1.1);
+}
+
+/* Enhanced Navigation Buttons */
+.lesson-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.lesson-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    transition: all 0.3s ease;
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.lesson-nav-btn:hover {
+    background: linear-gradient(135deg, #5855eb 0%, #2563eb 100%);
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.lesson-nav-btn:focus {
+    background: linear-gradient(135deg, #5855eb 0%, #2563eb 100%);
+    outline: none;
+    ring: 2px;
+    ring-color: #6366f1;
+    ring-offset: 2px;
+}
+
+.lesson-nav-btn:active {
+    background: linear-gradient(135deg, #4f46e5 0%, #1d4ed8 100%);
+    transform: scale(0.98);
+}
+
+.lesson-nav-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.lesson-nav-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Previous button specific */
+.lesson-nav-btn.prev svg {
+    margin-right: 0.5rem;
+}
+
+/* Next button specific */
+.lesson-nav-btn.next svg {
+    margin-left: 0.5rem;
+}
+
+/* Responsive adjustments for navigation */
+@media (max-width: 640px) {
+    .lesson-nav-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .lesson-nav-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* Ensure the original card doesn't limit the player anymore */
+.lesson-card .yt-protected,
+.lesson-card .cb-video-protected {
+    max-width: none;
+}
+
+/* Keep player responsive (if not already) */
+.yt-stage, .vp-stage { 
+    aspect-ratio: 16 / 9; 
+}
+
 /* Video Stage */
 .yt-stage {
     position: relative;
@@ -453,5 +602,86 @@ body.no-scroll {
     .yt-btn,
     .yt-seek::-webkit-slider-thumb {
         transition: none;
+    }
+}
+
+/* Enhanced Security Notice Styles */
+.security-notice-enhanced {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.security-notice-enhanced .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.security-notice-enhanced .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.security-notice-enhanced .feature-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(51, 65, 85, 0.4);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.security-notice-enhanced .feature-item:hover {
+    background: rgba(71, 85, 105, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.security-notice-enhanced .status-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Responsive adjustments for security notice */
+@media (max-width: 640px) {
+    .security-notice-enhanced .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .security-notice-enhanced .feature-item {
+        padding: 0.5rem;
+    }
+    
+    .security-notice-enhanced h4 {
+        font-size: 1rem;
+    }
+    
+    .security-notice-enhanced p {
+        font-size: 0.875rem;
     }
 }

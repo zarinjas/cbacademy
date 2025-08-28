@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Lesson extends Model
 {
@@ -41,6 +42,13 @@ class Lesson extends Model
         'is_published' => 'boolean',
         'duration_seconds' => 'integer',
         'display_order' => 'integer',
+    ];
+
+    /**
+     * The attributes that should be appended to arrays.
+     */
+    protected $appends = [
+        'has_valid_video'
     ];
 
     /**
@@ -324,11 +332,13 @@ class Lesson extends Model
     }
 
     /**
-     * Check if lesson has a valid video.
+     * Check if the lesson has a valid video (computed attribute)
      */
-    public function hasValidVideo(): bool
+    protected function hasValidVideo(): Attribute
     {
-        return $this->video_type === 'google_drive' && !empty($this->google_drive_url);
+        return Attribute::make(
+            get: fn () => (bool) ($this->youtube_id || $this->google_drive_id || $this->mp4_url)
+        );
     }
 
     /**
@@ -364,14 +374,6 @@ class Lesson extends Model
         
         $queryString = http_build_query($params);
         return "https://www.youtube.com/embed/{$this->youtube_id}?{$queryString}";
-    }
-
-    /**
-     * Check if lesson has Google Drive video.
-     */
-    public function hasGoogleDriveVideo(): bool
-    {
-        return $this->video_type === 'google_drive' && !empty($this->google_drive_url);
     }
 
     /**
