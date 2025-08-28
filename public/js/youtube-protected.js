@@ -12,15 +12,14 @@
     let pendingComponents = [];
     const players = {};
 
-    // YouTube IFrame API loader
+    // Load YouTube IFrame API
     function loadYouTubeAPI() {
-        if (window.YT && window.YT.Player) {
+        if (window.YT) {
             youtubeAPIReady = true;
-            initializePendingComponents();
+            onYouTubeIframeAPIReady();
             return;
         }
-
-        // Load YouTube IFrame API
+        
         const tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -28,10 +27,16 @@
     }
 
     // YouTube API ready callback
-    window.onYouTubeIframeAPIReady = function() {
+    function onYouTubeIframeAPIReady() {
+        console.log('[youtube-api] YouTube IFrame API ready');
         youtubeAPIReady = true;
-        initializePendingComponents();
-    };
+        
+        // Initialize any pending components
+        pendingComponents.forEach(({ playerId, videoId }) => {
+            createPlayer(playerId, videoId);
+        });
+        pendingComponents = [];
+    }
 
     // Initialize all pending components
     function initializePendingComponents() {
@@ -228,22 +233,24 @@
         });
     }
 
-    // Create player with security parameters
+    // Create YouTube player
     function createPlayer(playerId, videoId) {
+        console.log(`[player-create] Creating player ${playerId} for video ${videoId}`);
+        
         const player = new YT.Player(`yt-player-${playerId}`, {
             videoId: videoId,
             playerVars: {
-                enablejsapi: 1,        // Enable JavaScript API
-                modestbranding: 1,     // Hide YouTube branding
-                rel: 0,                // Don't show related videos
-                playsinline: 1,        // Play inline on mobile (essential for iOS)
-                fs: 1,                 // Enable fullscreen
-                controls: 1,           // Show some controls for better compatibility
-                showinfo: 0,           // Hide video info
-                iv_load_policy: 3,     // Disable annotations
-                cc_load_policy: 0,     // Disable captions
-                autoplay: 0,           // Don't autoplay
-                mute: 0                // Ensure NOT muted by default
+                enablejsapi: 1,
+                modestbranding: 1,
+                rel: 0,
+                playsinline: 1,
+                fs: 1,
+                controls: 1,
+                showinfo: 0,
+                iv_load_policy: 3,
+                cc_load_policy: 0,
+                autoplay: 0,
+                mute: 0
             },
             events: {
                 onReady: (event) => onPlayerReady(event, playerId),
@@ -261,86 +268,80 @@
                 iframe.setAttribute('allowfullscreen', '');
                 iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media; picture-in-picture; web-share');
                 iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-                console.log('Iframe attributes set for fullscreen support');
+                console.log(`[player-create] Iframe attributes set for fullscreen support`);
             }
         }, 100);
         
         return player;
     }
 
-    // Player ready event handler
+    // Player ready event
     function onPlayerReady(event, playerId) {
-        console.log(`Player ${playerId} ready`);
-        const component = document.querySelector(`[data-player-id="${playerId}"]`);
-        if (component) {
-            const player = players[playerId];
-            if (player) {
-                console.log(`Initial audio state for ${playerId}:`, {
-                    isMuted: player.isMuted(),
-                    volume: player.getVolume(),
-                    playerState: player.getPlayerState()
-                });
-                try {
-                    if (player.isMuted()) {
-                        console.log(`Unmuting player ${playerId}`);
-                        player.unMute();
-                    }
-                    player.setVolume(100);
-                    console.log(`Set volume to 100 for player ${playerId}`);
-                    console.log(`Final audio state for ${playerId}:`, {
-                        isMuted: player.isMuted(),
-                        volume: player.getVolume(),
-                        playerState: player.getPlayerState()
-                    });
-                } catch (e) {
-                    console.warn(`Could not set audio state for player ${playerId}:`, e);
-                }
-            }
-            wireUpControls(playerId, component);
+        const player = players[playerId];
+        if (player) {
+            player.unMute();
+            player.setVolume(100);
+            console.log(`[player-ready] Player ${playerId} ready. Muted: ${player.isMuted()}, Volume: ${player.getVolume()}`);
+            wireUpControls(playerId, document.querySelector(`[data-player-id="${playerId}"]`));
             startTimeUpdates(playerId);
         }
     }
 
-    // Player state change event handler
+    // Player state change event
     function onPlayerStateChange(event, playerId) {
+        const player = players[playerId];
         const component = document.querySelector(`[data-player-id="${playerId}"]`);
-        if (!component) return;
+        if (!player || !component) return;
 
         const playBtn = component.querySelector('.yt-btn-play');
         const pauseBtn = component.querySelector('.yt-btn-pause');
         const muteBtn = component.querySelector('.yt-btn-mute');
         const unmuteBtn = component.querySelector('.yt-btn-unmute');
-        const player = players[playerId];
+        const volumeBar = component.querySelector('.yt-volume');
+        const volumeIcon = component.querySelector('.yt-volume-icon');
 
-        if (event.data === YT.PlayerState.PLAYING) {
-            playBtn.style.display = 'none';
-            pauseBtn.style.display = 'inline-flex';
-            if (player && player.isMuted()) {
-                console.log(`Player ${playerId} was muted while playing, unmuting...`);
-                player.unMute();
-            }
-            console.log(`Audio state while playing for ${playerId}:`, {
-                isMuted: player.isMuted(),
-                volume: player.getVolume(),
-                playerState: player.getPlayerState()
-            });
-        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-            playBtn.style.display = 'inline-flex';
-            pauseBtn.style.display = 'none';
+        switch (event.data) {
+            case YT.PlayerState.PLAYING:
+                playBtn.style.display = 'none';
+                pauseBtn.style.display = 'inline-flex';
+                if (player.isMuted()) {
+                    player.unMute();
+                    console.log(`[player-state] Player ${playerId} was muted while playing, unmuted. Volume: ${player.getVolume()}`);
+                }
+                break;
+            case YT.PlayerState.PAUSED:
+                playBtn.style.display = 'inline-flex';
+                pauseBtn.style.display = 'none';
+                break;
+            case YT.PlayerState.ENDED:
+                playBtn.style.display = 'inline-flex';
+                pauseBtn.style.display = 'none';
+                component.querySelector('.yt-seek').value = 0;
+                break;
+            case YT.PlayerState.BUFFERING:
+                // Optionally show a buffering indicator
+                break;
+            case YT.PlayerState.CUED:
+                // Video is cued, ready to play
+                break;
         }
 
+        // Update mute/unmute button state
         if (player.isMuted()) {
             muteBtn.style.display = 'none';
             unmuteBtn.style.display = 'inline-flex';
+            volumeIcon.textContent = '🔇';
         } else {
             muteBtn.style.display = 'inline-flex';
             unmuteBtn.style.display = 'none';
+            volumeIcon.textContent = '🔊';
         }
+        volumeBar.value = player.getVolume();
     }
 
-    // Player error event handler
+    // Player error event
     function onPlayerError(event, playerId) {
-        console.error(`Player ${playerId} error:`, event.data);
+        console.error(`[player-error] Player ${playerId} error:`, event.data);
     }
 
     // Wire up custom controls
@@ -555,6 +556,37 @@
             }
         }, 1000);
     }
+
+    // Toggle fullscreen
+    function toggleFullscreen(root) {
+        const stageEl = root.querySelector('.yt-stage');
+        
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            if (stageEl.requestFullscreen) {
+                stageEl.requestFullscreen();
+            } else if (stageEl.webkitRequestFullscreen) {
+                stageEl.webkitRequestFullscreen();
+            } else if (stageEl.msRequestFullscreen) {
+                stageEl.msRequestFullscreen();
+            }
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
+
+    // Global callback for YouTube API
+    window.onYouTubeIframeAPIReady = function() {
+        console.log('[youtube-api] YouTube IFrame API ready (global callback)');
+        onYouTubeIframeAPIReady();
+    };
 
     // Initialize component
     function initComponent(playerId, videoId) {
