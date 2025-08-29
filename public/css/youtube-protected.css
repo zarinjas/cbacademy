@@ -538,6 +538,12 @@
     z-index: 2 !important; /* Allow controls to be above mask in fullscreen */
 }
 
+/* In portal/fake fullscreen ensure mask does not block controls */
+#yt-fs-portal .yt-stage .yt-mask,
+.yt-protected.is-fs .yt-stage .yt-mask {
+    pointer-events: none !important;
+}
+
 .yt-protected.is-fs .yt-watermark {
     z-index: 6 !important;
 }

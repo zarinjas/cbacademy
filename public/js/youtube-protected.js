@@ -379,7 +379,8 @@
         // Play button
         const playBtn = component.querySelector('.yt-btn-play');
         if (playBtn) {
-            playBtn.addEventListener('click', (e) => {
+            // use pointerup for better mobile responsiveness
+            playBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -429,7 +430,7 @@
         // Pause button
         const pauseBtn = component.querySelector('.yt-btn-pause');
         if (pauseBtn) {
-            pauseBtn.addEventListener('click', (e) => {
+            pauseBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 player.pauseVideo();
@@ -439,7 +440,7 @@
         // Mute button
         const muteBtn = component.querySelector('.yt-btn-mute');
         if (muteBtn) {
-            muteBtn.addEventListener('click', (e) => {
+            muteBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 player.mute();
@@ -449,7 +450,7 @@
         // Unmute button
         const unmuteBtn = component.querySelector('.yt-btn-unmute');
         if (unmuteBtn) {
-            unmuteBtn.addEventListener('click', (e) => {
+            unmuteBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 player.unMute();
@@ -539,15 +540,38 @@
             });
         }
 
-        // Fullscreen button
-        const fsBtn = component.querySelector('.yt-btn-fs');
-        if (fsBtn) {
+    // Fullscreen button
+    const fsBtn = component.querySelector('.yt-btn-fs');
+    if (fsBtn) {
             // Use pointerup for better mobile support, with click fallback
             // Do NOT mark as passive: we need to call preventDefault on some platforms
             fsBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toggleFullscreen(component);
+                // Try iframe-first fullscreen for iOS/Safari compatibility
+                const stage = component.querySelector('.yt-stage');
+                const iframe = stage?.querySelector('iframe');
+                const tryIframeFS = async () => {
+                    try {
+                        if (iframe && (iframe.requestFullscreen || iframe.webkitRequestFullscreen)) {
+                            if (iframe.requestFullscreen) {
+                                await iframe.requestFullscreen();
+                            } else if (iframe.webkitRequestFullscreen) {
+                                iframe.webkitRequestFullscreen();
+                            }
+                            component.classList.add('is-fs');
+                            return true;
+                        }
+                    } catch (err) {
+                        console.warn('Iframe fullscreen failed, falling back to stage:', err);
+                    }
+                    return false;
+                };
+
+                (async () => {
+                    const ok = await tryIframeFS();
+                    if (!ok) toggleFullscreen(component);
+                })();
             });
 
             // Fallback for devices without pointer events
@@ -588,15 +612,32 @@
     // Toggle fullscreen
     function toggleFullscreen(root) {
         const stageEl = root.querySelector('.yt-stage');
-        
-        if (!document.fullscreenElement) {
-            // Enter fullscreen
+        const iframe = stageEl?.querySelector('iframe');
+
+        const isDocFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+
+        if (!isDocFull) {
+            // Try iframe-first (helps some iOS/Safari builds)
+            try {
+                if (iframe && (iframe.requestFullscreen || iframe.webkitRequestFullscreen)) {
+                    if (iframe.requestFullscreen) iframe.requestFullscreen();
+                    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+                    return;
+                }
+            } catch (e) {
+                // ignore and fallback to stage
+            }
+
+            // Fallback to stage element
             if (stageEl.requestFullscreen) {
                 stageEl.requestFullscreen();
             } else if (stageEl.webkitRequestFullscreen) {
                 stageEl.webkitRequestFullscreen();
             } else if (stageEl.msRequestFullscreen) {
                 stageEl.msRequestFullscreen();
+            } else {
+                // As last resort, use fake fullscreen
+                enterFakeFullscreen(root);
             }
         } else {
             // Exit fullscreen
@@ -606,6 +647,8 @@
                 document.webkitExitFullscreen();
             } else if (document.msExitFullscreen) {
                 document.msExitFullscreen();
+            } else {
+                exitFakeFullscreen();
             }
         }
     }
