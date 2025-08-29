@@ -535,7 +535,7 @@
 
 .yt-protected.is-fs .yt-mask {
     background: transparent !important;
-    z-index: 5 !important;
+    z-index: 2 !important; /* Allow controls to be above mask in fullscreen */
 }
 
 .yt-protected.is-fs .yt-watermark {
@@ -581,6 +581,30 @@
     backdrop-filter: blur(8px);
     border-radius: 0.75rem;
     border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Mobile overlay style: position controls over the stage for easier reach */
+@media (max-width: 768px) {
+    .yt-controls {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 10;
+        background: rgba(43, 50, 68, 0.6);
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    /* Reduce mask interference on mobile to allow controls to be used via pointer events */
+    .yt-stage .yt-mask {
+        pointer-events: none;
+    }
 }
 
 #yt-fs-portal .yt-watermark {

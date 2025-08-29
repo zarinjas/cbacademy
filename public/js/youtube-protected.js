@@ -128,8 +128,16 @@
         }
         
         // Store original parent for restoration
-        component.dataset.originalParent = component.parentNode;
-        component.dataset.originalIndex = Array.from(component.parentNode.children).indexOf(component);
+        // Store original parent selector and index for restoration
+        try {
+            const parent = component.parentNode;
+            // Use a simple unique key by assigning an id if missing
+            if (!parent.id) parent.id = 'yt-original-parent-' + Math.random().toString(36).slice(2, 9);
+            component.dataset.originalParentId = parent.id;
+            component.dataset.originalIndex = Array.from(parent.children).indexOf(component);
+        } catch (e) {
+            console.warn('Failed to store original parent info for fake fullscreen', e);
+        }
         
         // Move component to portal
         portal.appendChild(component);
@@ -157,15 +165,18 @@
         if (!component) return;
         
         // Restore to original parent
-        const originalParent = component.dataset.originalParent;
-        const originalIndex = parseInt(component.dataset.originalIndex);
-        
-        if (originalParent) {
-            if (originalIndex === 0) {
-                originalParent.insertBefore(component, originalParent.firstChild);
-            } else {
-                const referenceNode = originalParent.children[originalIndex];
-                originalParent.insertBefore(component, referenceNode);
+        const originalParentId = component.dataset.originalParentId;
+        const originalIndex = parseInt(component.dataset.originalIndex || '0');
+        if (originalParentId) {
+            const originalParent = document.getElementById(originalParentId);
+            if (originalParent) {
+                if (originalIndex === 0) {
+                    originalParent.insertBefore(component, originalParent.firstChild);
+                } else {
+                    // If index is larger than number of children, append
+                    const referenceNode = originalParent.children[originalIndex] || null;
+                    originalParent.insertBefore(component, referenceNode);
+                }
             }
         }
         
@@ -532,12 +543,13 @@
         const fsBtn = component.querySelector('.yt-btn-fs');
         if (fsBtn) {
             // Use pointerup for better mobile support, with click fallback
+            // Do NOT mark as passive: we need to call preventDefault on some platforms
             fsBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleFullscreen(component);
-            }, { passive: true });
-            
+            });
+
             // Fallback for devices without pointer events
             fsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
