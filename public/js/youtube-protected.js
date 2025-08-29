@@ -272,7 +272,7 @@
                 rel: 0,
                 playsinline: 1,
                 fs: 1,
-                controls: 1,
+                controls: 0, // hide native controls, we provide custom controls
                 showinfo: 0,
                 iv_load_policy: 3,
                 cc_load_policy: 0,
@@ -331,6 +331,9 @@
             case YT.PlayerState.PLAYING:
                 playBtn.style.display = 'none';
                 pauseBtn.style.display = 'inline-flex';
+                // Hide large central play button when playing
+                const bigPlayHide = component.querySelector('.yt-big-play');
+                if (bigPlayHide) bigPlayHide.classList.add('hidden');
                 if (player.isMuted()) {
                     player.unMute();
                     console.log(`[player-state] Player ${playerId} was muted while playing, unmuted. Volume: ${player.getVolume()}`);
@@ -339,11 +342,16 @@
             case YT.PlayerState.PAUSED:
                 playBtn.style.display = 'inline-flex';
                 pauseBtn.style.display = 'none';
+                // Show big play on pause
+                const bigPlayShow = component.querySelector('.yt-big-play');
+                if (bigPlayShow) bigPlayShow.classList.remove('hidden');
                 break;
             case YT.PlayerState.ENDED:
                 playBtn.style.display = 'inline-flex';
                 pauseBtn.style.display = 'none';
                 component.querySelector('.yt-seek').value = 0;
+                const bigPlayEnd = component.querySelector('.yt-big-play');
+                if (bigPlayEnd) bigPlayEnd.classList.remove('hidden');
                 break;
             case YT.PlayerState.BUFFERING:
                 // Optionally show a buffering indicator
@@ -375,6 +383,22 @@
     function wireUpControls(playerId, component) {
         const player = players[playerId];
         if (!player) return;
+
+        // Large central play button (mobile friendly)
+        const bigPlay = component.querySelector('.yt-big-play');
+        if (bigPlay) {
+            bigPlay.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    if (player.isMuted()) player.unMute();
+                    player.playVideo();
+                    bigPlay.classList.add('hidden');
+                } catch (err) {
+                    console.error('Big play failed', err);
+                }
+            });
+        }
 
         // Play button
         const playBtn = component.querySelector('.yt-btn-play');
@@ -548,9 +572,24 @@
             fsBtn.addEventListener('pointerup', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Try iframe-first fullscreen for iOS/Safari compatibility
+
                 const stage = component.querySelector('.yt-stage');
                 const iframe = stage?.querySelector('iframe');
+                const mask = component.querySelector('.yt-mask');
+                const prevPointer = mask ? mask.style.pointerEvents : null;
+
+                // Temporarily disable mask pointer events so iframe receives the gesture
+                if (mask) mask.style.pointerEvents = 'none';
+
+                const restoreMask = () => {
+                    if (mask) mask.style.pointerEvents = prevPointer || '';
+                    document.removeEventListener('fullscreenchange', restoreMask);
+                    document.removeEventListener('webkitfullscreenchange', restoreMask);
+                };
+
+                document.addEventListener('fullscreenchange', restoreMask);
+                document.addEventListener('webkitfullscreenchange', restoreMask);
+
                 const tryIframeFS = async () => {
                     try {
                         if (iframe && (iframe.requestFullscreen || iframe.webkitRequestFullscreen)) {
@@ -570,7 +609,11 @@
 
                 (async () => {
                     const ok = await tryIframeFS();
-                    if (!ok) toggleFullscreen(component);
+                    if (!ok) {
+                        // restore if iframe FS didn't happen quickly
+                        if (mask) setTimeout(() => { mask.style.pointerEvents = prevPointer || ''; }, 300);
+                        toggleFullscreen(component);
+                    }
                 })();
             });
 

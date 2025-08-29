@@ -13,6 +13,12 @@ IMPORTANT: Ensure your layout includes this viewport meta tag for mobile fullscr
              - referrerpolicy="strict-origin-when-cross-origin"
         -->
         <div id="yt-player-{{ $playerId }}"></div>
+        <!-- Large central play button for mobile friendliness -->
+        <button class="yt-big-play" aria-label="Play video" type="button">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M7 6v12l10-6z" />
+            </svg>
+        </button>
         <div class="yt-mask" aria-hidden="true"></div>
         <!-- Optional small watermark (no tint) -->
         <span class="yt-watermark">Protected</span>

@@ -364,6 +364,31 @@
     user-select: none;
 }
 
+/* Big central play button for mobile friendliness */
+.yt-big-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 45;
+    width: 84px;
+    height: 84px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+.yt-big-play svg { width: 36px; height: 36px; }
+.yt-big-play.hidden { display: none !important; }
+
+/* Ensure mask doesn't block controls on mobile and in fullscreen */
+.yt-stage .yt-mask { pointer-events: none; }
+
+
 /* Fullscreen Button Specific Styling */
 .yt-btn-fs {
     background: #059669 !important;
