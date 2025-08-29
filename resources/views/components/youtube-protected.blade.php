@@ -62,8 +62,30 @@ IMPORTANT: Ensure your layout includes this viewport meta tag for mobile fullscr
 // Initialize this component instance
 document.addEventListener('DOMContentLoaded', function() {
     const component = document.querySelector('[data-player-id="{{ $playerId }}"]');
-    if (component) {
-        window.YouTubeProtectedPlayer.initComponent('{{ $playerId }}', '{{ $videoId }}');
+    if (!component) return;
+
+    // Try to initialize immediately if the player API is ready, otherwise poll until available.
+    const tryInit = () => {
+        try {
+            if (window && window.YouTubeProtectedPlayer && typeof window.YouTubeProtectedPlayer.initComponent === 'function') {
+                window.YouTubeProtectedPlayer.initComponent('{{ $playerId }}', '{{ $videoId }}');
+                return true;
+            }
+        } catch (e) {
+            // ignore
+        }
+        return false;
+    };
+
+    if (!tryInit()) {
+        const maxAttempts = 50; // ~5 seconds
+        let attempts = 0;
+        const id = setInterval(() => {
+            attempts++;
+            if (tryInit() || attempts >= maxAttempts) {
+                clearInterval(id);
+            }
+        }, 100);
     }
 });
 </script>

@@ -337,7 +337,14 @@ class Lesson extends Model
     protected function hasValidVideo(): Attribute
     {
         return Attribute::make(
-            get: fn () => (bool) ($this->youtube_id || $this->google_drive_id || $this->mp4_url)
+            get: fn () => (bool) (
+                // Accept if we have a YouTube ID (stored) or can extract one from the URL,
+                // or if a Google Drive URL or direct mp4 URL exists.
+                !empty($this->youtube_id) ||
+                (method_exists($this, 'getYouTubeId') && !empty($this->getYouTubeId())) ||
+                !empty($this->google_drive_url) ||
+                !empty($this->mp4_url)
+            )
         );
     }
 
