@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>YouTube Protected Player - Fullscreen Test</title>
-    <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}">
+    <?php $ytCss = public_path('css/youtube-protected.css'); $ytJs = public_path('js/youtube-protected.js'); ?>
+    <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}?v={{ file_exists($ytCss) ? filemtime($ytCss) : time() }}">
     <style>
         body {
             background: #111827;
@@ -131,7 +132,7 @@
     </div>
 
     <!-- Include YouTube Protected Player JavaScript -->
-    <script src="{{ asset('js/youtube-protected.js') }}"></script>
+    <script src="{{ asset('js/youtube-protected.js') }}?v={{ file_exists($ytJs) ? filemtime($ytJs) : time() }}"></script>
     
     <script>
         // Additional test logging

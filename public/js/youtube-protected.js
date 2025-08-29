@@ -7,6 +7,11 @@
 (function() {
     'use strict';
 
+    // Version stamp to verify browser loaded the latest file
+    try {
+        console.log('[youtube-protected.js] loaded (modified at: 2025-08-29 14:38)');
+    } catch(e) {}
+
     // Global YouTube API state
     let youtubeAPIReady = false;
     let pendingComponents = [];

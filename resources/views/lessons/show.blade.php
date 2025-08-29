@@ -190,8 +190,9 @@
 
     @if($lesson->has_valid_video)
         @if($lesson->video_type === 'youtube')
-            <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}">
-            <script src="{{ asset('js/youtube-protected.js') }}"></script>
+            <?php $ytCss = public_path('css/youtube-protected.css'); $ytJs = public_path('js/youtube-protected.js'); ?>
+            <link rel="stylesheet" href="{{ asset('css/youtube-protected.css') }}?v={{ file_exists($ytCss) ? filemtime($ytCss) : time() }}">
+            <script src="{{ asset('js/youtube-protected.js') }}?v={{ file_exists($ytJs) ? filemtime($ytJs) : time() }}"></script>
         @elseif($lesson->video_type === 'google_drive')
             <link rel="stylesheet" href="{{ asset('css/video-security.css') }}">
             <script src="{{ asset('js/video-security.js') }}"></script>
