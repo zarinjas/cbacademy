@@ -388,7 +388,56 @@
     function wireUpControls(playerId, component) {
         const player = players[playerId];
         if (!player) return;
+        // Auto-hide controls helpers
+        const CONTROL_HIDE_DELAY = 3000; // ms
+        let hideTimer = null;
 
+        function showControls() {
+            component.classList.add('show-controls');
+            // ensure controls are visible
+            const controls = component.querySelector('.yt-controls');
+            if (controls) {
+                controls.classList.remove('hidden');
+            }
+            // reset hide timer
+            if (hideTimer) clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                hideControls();
+            }, CONTROL_HIDE_DELAY);
+        }
+
+        function hideControls() {
+            component.classList.remove('show-controls');
+            const controls = component.querySelector('.yt-controls');
+            if (controls) {
+                controls.classList.add('hidden');
+            }
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+        }
+
+        // Show controls on any pointer activity and schedule hide
+        const activityHandler = function (e) {
+            e && e.preventDefault && e.preventDefault();
+            showControls();
+        };
+
+        // Add pointer/touch listeners to reveal controls
+        component.addEventListener('pointermove', activityHandler, { passive: true });
+        component.addEventListener('pointerup', activityHandler);
+        component.addEventListener('touchstart', activityHandler, { passive: true });
+        component.addEventListener('mousemove', activityHandler);
+
+        // When component is removed/destroyed, clear timer
+        const cleanupUI = () => {
+            if (hideTimer) clearTimeout(hideTimer);
+            component.removeEventListener('pointermove', activityHandler);
+            component.removeEventListener('pointerup', activityHandler);
+            component.removeEventListener('touchstart', activityHandler);
+            component.removeEventListener('mousemove', activityHandler);
+        };
         // Large central play button (mobile friendly)
         const bigPlay = component.querySelector('.yt-big-play');
         if (bigPlay) {
@@ -618,6 +667,13 @@
                         // restore if iframe FS didn't happen quickly
                         if (mask) setTimeout(() => { mask.style.pointerEvents = prevPointer || ''; }, 300);
                         toggleFullscreen(component);
+                    } else {
+                        // on successful iframe fullscreen, hide controls after short delay
+                        setTimeout(() => {
+                            const controls = component.querySelector('.yt-controls');
+                            if (controls) controls.classList.add('hidden');
+                            component.classList.remove('show-controls');
+                        }, 500);
                     }
                 })();
             });

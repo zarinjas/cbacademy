@@ -388,6 +388,9 @@
 /* Ensure mask doesn't block controls on mobile and in fullscreen */
 .yt-stage .yt-mask { pointer-events: none; }
 
+/* Hide big play button in fullscreen */
+.yt-protected.is-fs .yt-big-play { display: none !important; }
+
 
 /* Fullscreen Button Specific Styling */
 .yt-btn-fs {
@@ -561,6 +564,32 @@
 .yt-protected.is-fs .yt-mask {
     background: transparent !important;
     z-index: 2 !important; /* Allow controls to be above mask in fullscreen */
+}
+
+/* Controls visibility & transitions */
+.yt-controls {
+    transition: opacity 240ms ease, transform 240ms ease;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.yt-controls.hidden {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+}
+
+/* In fullscreen hide controls by default; show when user interacts */
+.yt-protected.is-fs .yt-controls {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.yt-protected.show-controls .yt-controls,
+.yt-protected.is-fs.show-controls .yt-controls {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* In portal/fake fullscreen ensure mask does not block controls */
