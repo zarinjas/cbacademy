@@ -42,13 +42,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('[player] DOM ready, initializing components');
         
-        // TEMP debug (remove after)
-        console.log('[ios-debug]', {
-            wrap: document.querySelector('.lesson-player-wrap')?.getBoundingClientRect(),
-            stage: document.querySelector('.yt-stage, .vp-stage')?.getBoundingClientRect(),
-            media: document.querySelector('.yt-stage iframe, .vp-stage video')?.getBoundingClientRect(),
-            ua: navigator.userAgent
-        });
+        // TEMP diagnostics - detect iOS video player blockers
+        runIOSDiagnostics();
         
         initializePendingComponents();
     });
@@ -658,3 +653,82 @@
     // Load YouTube API
     loadYouTubeAPI();
 })();
+
+// TEMP diagnostics function - remove after verification on real iPhone
+function runIOSDiagnostics() {
+    const stage = document.querySelector('.yt-stage, .vp-stage');
+    if (!stage) {
+        console.log('[ios-diagnostics] No stage element found');
+        return;
+    }
+    
+    console.log('[ios-diagnostics] Stage found:', stage);
+    
+    // Build ancestor chain up to body
+    const ancestors = [];
+    let current = stage;
+    
+    while (current && current !== document.body) {
+        const rect = current.getBoundingClientRect();
+        const computed = window.getComputedStyle(current);
+        
+        // Check for known iOS blockers
+        const isBlocker = (
+            computed.display === 'none' ||
+            rect.height === 0 ||
+            computed.visibility === 'hidden' ||
+            computed.transform !== 'none' ||
+            computed.filter !== 'none' ||
+            computed.backdropFilter !== 'none' ||
+            parseFloat(computed.opacity) < 1 ||
+            (computed.overflow === 'hidden' && parseFloat(computed.borderRadius) > 0)
+        );
+        
+        ancestors.push({
+            el: current.tagName + (current.className ? '.' + current.className.split(' ')[0] : ''),
+            w: rect.width,
+            h: rect.height,
+            display: computed.display,
+            overflow: computed.overflow,
+            transform: computed.transform,
+            filter: computed.filter,
+            backdropFilter: computed.backdropFilter,
+            opacity: computed.opacity,
+            radius: computed.borderRadius,
+            position: computed.position,
+            visibility: computed.visibility,
+            blocker: isBlocker
+        });
+        
+        current = current.parentElement;
+    }
+    
+    // Log ancestor chain analysis
+    console.table(ancestors);
+    
+    // Check for first blocker
+    const firstBlocker = ancestors.find(a => a.blocker);
+    if (firstBlocker) {
+        console.warn('[ios-diagnostics] FIRST BLOCKER FOUND:', firstBlocker);
+    } else {
+        console.log('[ios-diagnostics] No obvious blockers found in ancestor chain');
+    }
+    
+    // Check ::before pseudo-element for aspect-ratio fallback
+    try {
+        const beforeContent = window.getComputedStyle(stage, '::before').content;
+        console.log('[ios-diagnostics] ::before content:', beforeContent);
+    } catch (e) {
+        console.log('[ios-diagnostics] ::before check failed:', e.message);
+    }
+    
+    // Log stage dimensions
+    const stageRect = stage.getBoundingClientRect();
+    console.log('[ios-diagnostics] Stage dimensions:', {
+        width: stageRect.width,
+        height: stageRect.height,
+        top: stageRect.top,
+        left: stageRect.left,
+        visible: stageRect.width > 0 && stageRect.height > 0
+    });
+}

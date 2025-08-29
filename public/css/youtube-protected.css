@@ -862,3 +862,98 @@ body.no-scroll {
         overflow: visible !important;
     }
 }
+
+/* iOS Video Safe - Comprehensive fix for video-iphone-safe wrapper */
+.video-iphone-safe {
+    /* Ensure this wrapper doesn't clip the video */
+    overflow: visible !important;
+}
+
+/* Height collapse fallback + native aspect-ratio */
+.video-iphone-safe .yt-stage,
+.video-iphone-safe .vp-stage {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: visible;
+}
+
+.video-iphone-safe .yt-stage::before,
+.video-iphone-safe .vp-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%;
+}
+
+.video-iphone-safe .yt-stage > iframe,
+.video-iphone-safe .yt-stage > div,
+.video-iphone-safe .vp-stage > video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Prefer native aspect-ratio when supported */
+@supports (aspect-ratio: 16/9) {
+    .video-iphone-safe .yt-stage::before,
+    .video-iphone-safe .vp-stage::before {
+        display: none;
+    }
+    
+    .video-iphone-safe .yt-stage,
+    .video-iphone-safe .vp-stage {
+        aspect-ratio: 16/9;
+    }
+}
+
+/* iOS-only reset of problematic properties on ancestors */
+@supports (-webkit-touch-callout: none) {
+    .video-iphone-safe,
+    .video-iphone-safe * {
+        -webkit-transform: none !important;
+        transform: none !important;
+        -webkit-filter: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        mix-blend-mode: normal !important;
+        will-change: auto !important;
+    }
+    
+    /* prevent clipping from rounded containers/overflow */
+    .video-iphone-safe {
+        overflow: visible !important;
+    }
+    
+    .video-iphone-safe .card,
+    .video-iphone-safe .content-protection {
+        overflow: visible !important;
+        /* if their border-radius clips video plane, remove it for iOS */
+        border-radius: 0 !important;
+    }
+    
+    /* make sure no collapsed height on mobile */
+    .video-iphone-safe .lesson-player-wrap,
+    .video-iphone-safe .yt-stage,
+    .video-iphone-safe .vp-stage {
+        min-height: 180px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Ensure the player wrappers themselves are visible */
+.lesson-player-shell,
+.lesson-player-wrap,
+.yt-protected,
+.cb-video-protected {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+iframe,
+video {
+    max-width: 100%;
+    display: block;
+}
