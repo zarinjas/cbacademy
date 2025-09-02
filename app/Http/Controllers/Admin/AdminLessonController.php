@@ -33,9 +33,15 @@ class AdminLessonController extends Controller
         if ($data['video_type'] === 'youtube') {
             $data['youtube_url'] = $data['youtube_url'] ?? null;
             $data['google_drive_url'] = null;
+            $data['local_filename'] = null;
         } elseif ($data['video_type'] === 'google_drive') {
             $data['google_drive_url'] = $data['google_drive_url'] ?? null;
             $data['youtube_url'] = null;
+            $data['local_filename'] = null;
+        } elseif ($data['video_type'] === 'local') {
+            $data['local_filename'] = $data['local_filename'] ?? null;
+            $data['youtube_url'] = null;
+            $data['google_drive_url'] = null;
         }
 
         $lesson = $course->lessons()->create($data);
@@ -71,9 +77,15 @@ class AdminLessonController extends Controller
         if ($data['video_type'] === 'youtube') {
             $data['youtube_url'] = $data['youtube_url'] ?? null;
             $data['google_drive_url'] = null;
+            $data['local_filename'] = null;
         } elseif ($data['video_type'] === 'google_drive') {
             $data['google_drive_url'] = $data['google_drive_url'] ?? null;
             $data['youtube_url'] = null;
+            $data['local_filename'] = null;
+        } elseif ($data['video_type'] === 'local') {
+            $data['local_filename'] = $data['local_filename'] ?? null;
+            $data['youtube_url'] = null;
+            $data['google_drive_url'] = null;
         }
 
         $lesson->update($data);

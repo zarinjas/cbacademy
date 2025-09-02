@@ -24,6 +24,7 @@ class Lesson extends Model
         'youtube_url',
         'youtube_id',
         'google_drive_url',
+    'local_filename',
         'video_type', // 'youtube' or 'google_drive'
         'duration_seconds',
         'display_order',
@@ -120,6 +121,9 @@ class Lesson extends Model
             return $this->getYouTubeEmbedUrl();
         } elseif ($this->video_type === 'google_drive' && !empty($this->google_drive_url)) {
             return $this->getGoogleDriveEmbedUrlWithFallback($this->getGoogleDriveId());
+        } elseif ($this->video_type === 'local' && !empty($this->local_filename)) {
+            // Local files are served via signed streaming route; URL is generated in controller/view
+            return null;
         }
         
         return null;
@@ -343,7 +347,8 @@ class Lesson extends Model
                 !empty($this->youtube_id) ||
                 (method_exists($this, 'getYouTubeId') && !empty($this->getYouTubeId())) ||
                 !empty($this->google_drive_url) ||
-                !empty($this->mp4_url)
+                !empty($this->mp4_url) ||
+                (!empty($this->local_filename) && $this->video_type === 'local')
             )
         );
     }

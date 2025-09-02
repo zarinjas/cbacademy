@@ -23,9 +23,10 @@ class StoreLessonRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'content' => 'required|string|max:2000',
-            'video_type' => 'required|in:youtube,google_drive',
+            'video_type' => 'required|in:youtube,google_drive,local',
             'youtube_url' => 'nullable|url|max:500',
             'google_drive_url' => 'nullable|url|max:500',
+            'local_filename' => 'nullable|string|max:255',
             'course_id' => 'required|exists:courses,id',
             'duration_seconds' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
@@ -62,6 +63,11 @@ class StoreLessonRequest extends FormRequest
                 
                 if (!Lesson::extractGoogleDriveId($googleDriveUrl)) {
                     $validator->errors()->add('google_drive_url', 'Invalid Google Drive URL format.');
+                }
+            } elseif ($videoType === 'local') {
+                $local = $this->input('local_filename');
+                if (!$local) {
+                    $validator->errors()->add('local_filename', 'Local filename is required when Local is selected.');
                 }
             }
         });

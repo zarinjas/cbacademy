@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             CourseSeeder::class,
+            // Demo course with local videos
+            \Database\Seeders\LocalVideosCourseSeeder::class,
         ]);
     }
 }

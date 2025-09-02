@@ -22,6 +22,12 @@
                                 videoUrl="{{ $lesson->video_embed_url }}" 
                                 title="{{ $lesson->title }}" 
                             />
+                        @elseif($lesson->video_type === 'local')
+                            @if(!empty($localVideoUrl))
+                                <x-local-video src="{{ $localVideoUrl }}" />
+                            @else
+                                <div class="p-6 text-center text-gray-300">Local video unavailable.</div>
+                            @endif
                         @endif
                         
                         <div class="lesson-player-tip" role="note" aria-label="Fullscreen tip">

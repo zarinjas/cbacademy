@@ -45,6 +45,13 @@ class LessonController extends Controller
         $currentPosition = $currentLessonIndex !== false ? $currentLessonIndex + 1 : 0;
         $progressPercentage = $totalLessons > 0 ? round(($currentPosition / $totalLessons) * 100) : 0;
 
-        return view('lessons.show', compact('course', 'lesson', 'nextLesson', 'previousLesson', 'progressPercentage'));
+        $localVideoUrl = null;
+        if ($lesson->video_type === 'local' && $lesson->local_filename) {
+            // Simple relative streaming URL (no signature). This makes local testing straightforward.
+            // For production, consider protecting this endpoint behind auth or signed URLs.
+            $localVideoUrl = '/videos/stream?file=' . urlencode($lesson->local_filename);
+        }
+
+        return view('lessons.show', compact('course', 'lesson', 'nextLesson', 'previousLesson', 'progressPercentage', 'localVideoUrl'));
     }
 }

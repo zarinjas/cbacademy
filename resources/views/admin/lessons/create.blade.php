@@ -68,6 +68,7 @@
                             <option value="">Select video type</option>
                             <option value="youtube" {{ old('video_type') === 'youtube' ? 'selected' : '' }}>YouTube Video</option>
                             <option value="google_drive" {{ old('video_type') === 'google_drive' ? 'selected' : '' }}>Google Drive Video</option>
+                            <option value="local" {{ old('video_type') === 'local' ? 'selected' : '' }}>Local File</option>
                         </select>
                         @error('video_type')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -146,6 +147,23 @@
                         </div>
                         
                         @error('google_drive_url')
+                            <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Local filename field -->
+                    <div id="local_filename_field" style="display: none;">
+                        <label for="local_filename" class="block text-sm font-medium text-white mb-2">
+                            Local filename (example: 1.mp4) *
+                        </label>
+                        <input 
+                            id="local_filename" 
+                            name="local_filename" 
+                            type="text" 
+                            value="{{ old('local_filename') }}" 
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chef-gold focus:border-transparent"
+                            placeholder="1.mp4">
+                        @error('local_filename')
                             <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
@@ -234,16 +252,24 @@
             const videoType = document.getElementById('video_type').value;
             const youtubeUrlField = document.getElementById('youtube_url_field');
             const googleDriveUrlField = document.getElementById('google_drive_url_field');
+            const localFilenameField = document.getElementById('local_filename_field');
 
             if (videoType === 'youtube') {
                 youtubeUrlField.style.display = 'block';
                 googleDriveUrlField.style.display = 'none';
+                if (localFilenameField) localFilenameField.style.display = 'none';
             } else if (videoType === 'google_drive') {
                 youtubeUrlField.style.display = 'none';
                 googleDriveUrlField.style.display = 'block';
+                if (localFilenameField) localFilenameField.style.display = 'none';
+            } else if (videoType === 'local') {
+                youtubeUrlField.style.display = 'none';
+                googleDriveUrlField.style.display = 'none';
+                if (localFilenameField) localFilenameField.style.display = 'block';
             } else {
                 youtubeUrlField.style.display = 'none';
                 googleDriveUrlField.style.display = 'none';
+                if (localFilenameField) localFilenameField.style.display = 'none';
             }
         }
 

@@ -94,3 +94,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+use App\Http\Controllers\VideoController;
+
+// Signed route for streaming local videos (validity enforced when generating URL)
+Route::get('/videos/stream', [VideoController::class, 'stream'])->name('videos.stream');
