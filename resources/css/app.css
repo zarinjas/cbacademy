@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-chef-black text-white font-sans;
+    }
+    
+    html {
+        @apply scroll-smooth;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-chef-gold hover:bg-chef-gold-hover text-chef-black font-semibold py-3 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-gold-glow focus:ring-2 focus:ring-chef-gold-focus focus:ring-offset-2 focus:ring-offset-chef-black;
+    }
+    
+    .btn-secondary {
+        @apply bg-chef-gray-light hover:bg-chef-gray-lighter border-2 border-chef-gray-lighter text-white hover:border-chef-gold font-semibold py-3 px-6 rounded-2xl transition-all duration-300 focus:ring-2 focus:ring-chef-gold-focus focus:ring-offset-2 focus:ring-offset-chef-black;
+    }
+    
+    .card {
+        @apply bg-chef-gray rounded-2xl p-6 shadow-card border border-chef-gray-lighter transition-all duration-300;
+    }
+    
+    .card-hover {
+        @apply hover:shadow-card-hover hover:scale-[1.02] hover:-translate-y-1;
+    }
+    
+    .card-elevated {
+        @apply shadow-card-hover scale-[1.02] -translate-y-1;
+    }
+    
+    .card-interactive {
+        @apply cursor-pointer transition-all duration-300 hover:shadow-card-hover hover:scale-[1.02] hover:-translate-y-1 active:scale-[0.98] active:translate-y-0;
+    }
+    
+    .depth-layer-1 {
+        @apply shadow-soft;
+    }
+    
+    .depth-layer-2 {
+        @apply shadow-card;
+    }
+    
+    .depth-layer-3 {
+        @apply shadow-card-hover;
+    }
+    
+    .depth-layer-4 {
+        @apply shadow-gold-glow;
+    }
+    
+    .input-field {
+        @apply bg-chef-gray-light border border-chef-gray-lighter text-white rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-chef-gold-focus focus:border-chef-gold transition-all duration-200 placeholder-gray-400;
+    }
+    
+    .nav-link {
+        @apply text-gray-300 hover:text-chef-gold transition-colors duration-300 font-medium;
+    }
+    
+    .nav-link-active {
+        @apply text-chef-gold;
+    }
+    
+    .lesson-item {
+        @apply border-l-4 border-transparent hover:border-chef-gold/30 transition-all duration-200;
+    }
+    
+    .lesson-item-active {
+        @apply border-l-4 border-chef-gold;
+    }
+    
+    .progress-badge {
+        @apply bg-transparent border-2 border-chef-gold text-chef-gold text-xs font-semibold px-2 py-1 rounded-full;
+    }
+}

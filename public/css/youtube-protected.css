@@ -1,0 +1,1043 @@
+/* YouTube Protected Player Styles */
+.yt-protected {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #1f2937;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Lesson Player Layout - New larger display */
+.lesson-player-shell {
+    padding: 20px;            /* ~20px from edges */
+    margin-bottom: 2rem;      /* Space between player and card */
+}
+
+.lesson-player-wrap {
+    max-width: 1280px;        /* give it room to be bigger than the card */
+    margin: 0 auto;
+}
+
+/* Make our player use full width of the wrap */
+.lesson-player-wrap .yt-protected,
+.lesson-player-wrap .cb-video-protected {
+    width: 100%;
+    max-width: none;          /* Override default max-width */
+}
+
+/* Mobile-specific adjustments for lesson player */
+@media (max-width: 768px) {
+    .lesson-player-shell {
+        padding: 10px;        /* Reduce padding on mobile */
+        margin-bottom: 1rem;  /* Less space on mobile */
+    }
+    
+    .lesson-player-wrap {
+        max-width: 100%;      /* Full width on mobile */
+        margin: 0;            /* No auto margins on mobile */
+    }
+    
+    /* Ensure video player is visible on mobile */
+    .lesson-player-wrap .yt-protected,
+    .lesson-player-wrap .cb-video-protected {
+        width: 100%;
+        max-width: none;
+        margin: 0;            /* Remove any margins that might hide it */
+        min-height: 200px;   /* Ensure minimum height on mobile */
+    }
+    
+    /* Make tip more mobile-friendly */
+    .lesson-player-tip {
+        margin-top: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    /* Ensure video stages are visible on mobile */
+    .yt-stage,
+    .vp-stage {
+        min-height: 200px;   /* Fallback height for mobile */
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Mobile touch optimizations */
+    .yt-controls button,
+    .vp-controls button {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Safe overrides to ensure player visibility on mobile */
+    .lesson-player-shell, .lesson-player-wrap,
+    .yt-protected, .cb-video-protected,
+    .yt-stage, .vp-stage, iframe, video {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
+}
+
+/* Tip style */
+.lesson-player-tip {
+    margin-top: 10px;
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    transition: all 0.3s ease;
+}
+
+.lesson-player-tip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
+}
+
+.lesson-player-tip .tip-dot {
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    display: inline-block;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.lesson-player-tip strong {
+    font-weight: 600;
+    color: #92400e;
+}
+
+.lesson-player-tip svg {
+    transition: transform 0.3s ease;
+}
+
+.lesson-player-tip:hover svg {
+    transform: scale(1.1);
+}
+
+/* Enhanced Navigation Buttons */
+.lesson-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.lesson-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    transition: all 0.3s ease;
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.lesson-nav-btn:hover {
+    background: linear-gradient(135deg, #5855eb 0%, #2563eb 100%);
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.lesson-nav-btn:focus {
+    background: linear-gradient(135deg, #5855eb 0%, #2563eb 100%);
+    outline: none;
+    ring: 2px;
+    ring-color: #6366f1;
+    ring-offset: 2px;
+}
+
+.lesson-nav-btn:active {
+    background: linear-gradient(135deg, #4f46e5 0%, #1d4ed8 100%);
+    transform: scale(0.98);
+}
+
+.lesson-nav-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.lesson-nav-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Previous button specific */
+.lesson-nav-btn.prev svg {
+    margin-right: 0.5rem;
+}
+
+/* Next button specific */
+.lesson-nav-btn.next svg {
+    margin-left: 0.5rem;
+}
+
+/* Responsive adjustments for navigation */
+@media (max-width: 640px) {
+    .lesson-nav-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .lesson-nav-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* Ensure the original card doesn't limit the player anymore */
+.lesson-card .yt-protected,
+.lesson-card .cb-video-protected {
+    max-width: none;
+}
+
+/* Keep player responsive (if not already) */
+.yt-stage, .vp-stage { 
+    aspect-ratio: 16 / 9; 
+}
+
+/* Video Stage */
+.yt-stage {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+}
+
+/* Fallback: reserve height with padding-bottom (16:9) */
+.yt-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%; /* 16:9 reserve space */
+}
+
+.yt-stage iframe,
+.yt-stage > div {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Google Drive Video Stage */
+.vp-stage {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+}
+
+/* Fallback: reserve height with padding-bottom (16:9) */
+.vp-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%; /* 16:9 reserve space */
+}
+
+.vp-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Click Blocking Mask - FULLY TRANSPARENT */
+.yt-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: transparent !important;
+    pointer-events: auto;
+    cursor: not-allowed;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Controls must stay above mask */
+.yt-controls, .vp-controls {
+    position: relative;
+    z-index: 5;
+}
+
+/* KILL any global tint/overlay/blur applied via pseudo-elements or utility classes */
+.yt-stage::before,
+.yt-stage::after,
+.yt-mask::before,
+.yt-mask::after {
+    content: none !important;
+    background: transparent !important;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Optional tiny corner label (no full-screen tint) */
+.yt-watermark {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 4;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* Controls below the stage (always clickable) */
+.yt-controls {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #2b3244;
+    color: #fff;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 8px;
+}
+
+/* Control Buttons */
+.yt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: #4b5563;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.yt-btn:hover {
+    background: #ef4444;
+    transform: scale(1.05);
+}
+
+.yt-btn:active {
+    background: #dc2626;
+    transform: scale(0.95);
+}
+
+.yt-btn:focus {
+    outline: 2px solid #ef4444;
+    outline-offset: 2px;
+}
+
+.yt-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Mobile Touch Optimizations */
+.yt-btn {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Big central play button for mobile friendliness */
+.yt-big-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 45;
+    width: 84px;
+    height: 84px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+.yt-big-play svg { width: 36px; height: 36px; }
+.yt-big-play.hidden { display: none !important; }
+
+/* Ensure mask doesn't block controls on mobile and in fullscreen */
+.yt-stage .yt-mask { pointer-events: none; }
+
+/* Hide big play button in fullscreen */
+.yt-protected.is-fs .yt-big-play { display: none !important; }
+
+
+/* Fullscreen Button Specific Styling */
+.yt-btn-fs {
+    background: #059669 !important;
+}
+
+.yt-btn-fs:hover {
+    background: #047857 !important;
+}
+
+.yt-protected.is-fs .yt-btn-fs {
+    background: #dc2626 !important;
+}
+
+.yt-protected.is-fs .yt-btn-fs:hover {
+    background: #b91c1c !important;
+}
+
+/* Seek Bar */
+.yt-seek {
+    flex: 1;
+    height: 6px;
+    background: #4b5563;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    touch-action: pan-x;
+}
+
+.yt-seek::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.yt-seek::-webkit-slider-thumb:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.yt-seek::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.yt-seek::-moz-range-thumb:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Volume Control */
+.yt-volume-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.yt-volume-icon {
+    font-size: 14px;
+    color: #d1d5db;
+    cursor: pointer;
+    user-select: none;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yt-volume {
+    width: 80px;
+    height: 4px;
+    background: #4b5563;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    touch-action: pan-x;
+}
+
+.yt-volume::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #6b7280;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.yt-volume::-webkit-slider-thumb:hover {
+    background: #9ca3af;
+    transform: scale(1.1);
+}
+
+.yt-volume::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #6b7280;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.yt-volume::-moz-range-thumb:hover {
+    background: #9ca3af;
+    transform: scale(1.1);
+}
+
+/* Fullscreen Support */
+.yt-stage:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    background: #000 !important;
+}
+
+.yt-stage:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    background: #000 !important;
+}
+
+.yt-stage:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    background: #000 !important;
+}
+
+.yt-stage:-ms-fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    background: #000 !important;
+}
+
+/* Fullscreen Controls Positioning */
+.yt-protected.is-fs .yt-controls {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 16px !important;
+    z-index: 6 !important;
+    width: min(960px, 90vw) !important;
+    background: rgba(43, 50, 68, 0.95) !important;
+    backdrop-filter: blur(8px) !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid rgba(75, 85, 99, 0.3) !important;
+}
+
+.yt-protected.is-fs .yt-stage {
+    position: relative !important;
+}
+
+.yt-protected.is-fs .yt-mask {
+    background: transparent !important;
+    z-index: 2 !important; /* Allow controls to be above mask in fullscreen */
+}
+
+/* Controls visibility & transitions */
+.yt-controls {
+    transition: opacity 240ms ease, transform 240ms ease;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.yt-controls.hidden {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+}
+
+/* In fullscreen hide controls by default; show when user interacts */
+.yt-protected.is-fs .yt-controls {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.yt-protected.show-controls .yt-controls,
+.yt-protected.is-fs.show-controls .yt-controls {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* In portal/fake fullscreen ensure mask does not block controls */
+#yt-fs-portal .yt-stage .yt-mask,
+.yt-protected.is-fs .yt-stage .yt-mask {
+    pointer-events: none !important;
+}
+
+.yt-protected.is-fs .yt-watermark {
+    z-index: 6 !important;
+}
+
+/* Portal System for Fake Fullscreen */
+#yt-fs-portal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#yt-fs-portal .yt-protected {
+    max-width: none;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#yt-fs-portal .yt-stage {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
+}
+
+#yt-fs-portal .yt-controls {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: max(16px, env(safe-area-inset-bottom));
+    width: min(960px, 94vw);
+    z-index: 10000;
+    background: rgba(43, 50, 68, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Mobile overlay style: position controls over the stage for easier reach */
+@media (max-width: 768px) {
+    .yt-controls {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 10;
+        background: rgba(43, 50, 68, 0.6);
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    /* Reduce mask interference on mobile to allow controls to be used via pointer events */
+    .yt-stage .yt-mask {
+        pointer-events: none;
+    }
+}
+
+#yt-fs-portal .yt-watermark {
+    position: absolute;
+    top: max(16px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+    z-index: 10000;
+}
+
+/* No Scroll Classes */
+html.no-scroll,
+body.no-scroll {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .yt-protected {
+        margin: 0 0.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    .yt-controls {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .yt-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .yt-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    /* Mobile-specific control layout */
+    .yt-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .yt-volume-container {
+        min-width: 100px;
+    }
+    
+    .yt-volume {
+        width: 60px;
+    }
+    
+    /* Mobile aspect-ratio fallback for iOS */
+    .yt-stage, .vp-stage {
+        aspect-ratio: auto;
+        min-height: 180px;
+    }
+    
+    /* Fallback: reserve height with padding-bottom (16:9) */
+    .yt-stage::before, .vp-stage::before {
+        content: "";
+        display: block;
+        padding-bottom: 56.25%;
+    }
+    
+    .yt-stage > iframe,
+    .yt-stage > div,
+    .vp-stage > video,
+    .vp-stage > iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    /* Safe overrides to ensure player visibility on mobile */
+    .lesson-player-shell, .lesson-player-wrap,
+    .yt-protected, .cb-video-protected,
+    .yt-stage, .vp-stage, iframe, video {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    iframe, video {
+        max-width: 100%;
+    }
+    
+    /* Ensure NO ancestor collapses the stage */
+    .lesson-player-wrap {
+        min-width: 0;
+    }
+    
+    .yt-stage, .vp-stage {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .yt-controls {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .yt-btn {
+        width: 2.25rem;
+        height: 2.25rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .yt-watermark {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+    
+    /* Stack controls vertically on very small screens */
+    .yt-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .yt-volume-container {
+        min-width: 80px;
+    }
+    
+    .yt-volume {
+        width: 50px;
+    }
+}
+
+/* Accessibility */
+.yt-btn:focus-visible,
+.yt-seek:focus-visible {
+    outline: 2px solid #ef4444;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .yt-btn {
+        border: 2px solid currentColor;
+    }
+    
+    .yt-seek::-webkit-slider-thumb {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .yt-btn,
+    .yt-seek::-webkit-slider-thumb {
+        transition: none;
+    }
+}
+
+/* Enhanced Security Notice Styles */
+.security-notice-enhanced {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.security-notice-enhanced .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.security-notice-enhanced .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.security-notice-enhanced .feature-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(51, 65, 85, 0.4);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.security-notice-enhanced .feature-item:hover {
+    background: rgba(71, 85, 105, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.security-notice-enhanced .status-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Responsive adjustments for security notice */
+@media (max-width: 640px) {
+    .security-notice-enhanced .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .security-notice-enhanced .feature-item {
+        padding: 0.5rem;
+    }
+    
+    .security-notice-enhanced h4 {
+        font-size: 1rem;
+    }
+    
+    .security-notice-enhanced p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Prefer native aspect-ratio when supported */
+@supports (aspect-ratio: 16/9) {
+    .yt-stage::before, .vp-stage::before {
+        display: none;
+        padding: 0;
+    }
+    .yt-stage, .vp-stage {
+        aspect-ratio: 16/9;
+    }
+}
+
+/* iOS Video Safe - Remove hardware video blockers */
+@supports (-webkit-touch-callout: none) {
+    .ios-video-safe,
+    .ios-video-safe * {
+        -webkit-filter: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        mix-blend-mode: normal !important;
+        -webkit-transform: none !important;
+        transform: none !important;
+        will-change: auto !important;
+    }
+    
+    /* ensure ancestors don't hide it */
+    .ios-video-safe .lesson-player-wrap,
+    .ios-video-safe .yt-stage,
+    .ios-video-safe .vp-stage {
+        visibility: visible !important;
+        opacity: 1 !important;
+        min-height: 180px; /* floor to avoid 0-height */
+    }
+    
+    /* cards near the player must not clip it on iOS */
+    .ios-video-safe .card,
+    .ios-video-safe .content-protection {
+        overflow: visible !important;
+    }
+}
+
+/* iOS Video Safe - Comprehensive fix for video-iphone-safe wrapper */
+.video-iphone-safe {
+    /* Ensure this wrapper doesn't clip the video */
+    overflow: visible !important;
+}
+
+/* Height collapse fallback + native aspect-ratio */
+.video-iphone-safe .yt-stage,
+.video-iphone-safe .vp-stage {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: visible;
+}
+
+.video-iphone-safe .yt-stage::before,
+.video-iphone-safe .vp-stage::before {
+    content: "";
+    display: block;
+    padding-bottom: 56.25%;
+}
+
+.video-iphone-safe .yt-stage > iframe,
+.video-iphone-safe .yt-stage > div,
+.video-iphone-safe .vp-stage > video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Prefer native aspect-ratio when supported */
+@supports (aspect-ratio: 16/9) {
+    .video-iphone-safe .yt-stage::before,
+    .video-iphone-safe .vp-stage::before {
+        display: none;
+    }
+    
+    .video-iphone-safe .yt-stage,
+    .video-iphone-safe .vp-stage {
+        aspect-ratio: 16/9;
+    }
+}
+
+/* iOS-only reset of problematic properties on ancestors */
+@supports (-webkit-touch-callout: none) {
+    .video-iphone-safe,
+    .video-iphone-safe * {
+        -webkit-transform: none !important;
+        transform: none !important;
+        -webkit-filter: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+        mix-blend-mode: normal !important;
+        will-change: auto !important;
+    }
+    
+    /* prevent clipping from rounded containers/overflow */
+    .video-iphone-safe {
+        overflow: visible !important;
+    }
+    
+    .video-iphone-safe .card,
+    .video-iphone-safe .content-protection {
+        overflow: visible !important;
+        /* if their border-radius clips video plane, remove it for iOS */
+        border-radius: 0 !important;
+    }
+    
+    /* make sure no collapsed height on mobile */
+    .video-iphone-safe .lesson-player-wrap,
+    .video-iphone-safe .yt-stage,
+    .video-iphone-safe .vp-stage {
+        min-height: 180px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Ensure the player wrappers themselves are visible */
+.lesson-player-shell,
+.lesson-player-wrap,
+.yt-protected,
+.cb-video-protected {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+iframe,
+video {
+    max-width: 100%;
+    display: block;
+}

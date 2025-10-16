@@ -1,0 +1,22 @@
+/* MINIMAL VIDEO SECURITY CSS - SAFE APPROACH */
+
+/* Only hide very specific pop-out elements within video container */
+.video-container iframe + div[style*="position: absolute"][style*="top: 0"][style*="right: 0"] {
+    display: none !important;
+}
+
+.video-container iframe + div[style*="position: absolute"][style*="top: 0px"][style*="right: 0px"] {
+    display: none !important;
+}
+
+/* Hide any element with popout in class name within video container only */
+.video-container [class*="popout"],
+.video-container [class*="pop-out"] {
+    display: none !important;
+}
+
+/* Hide any element with popout in ID within video container only */
+.video-container [id*="popout"],
+.video-container [id*="pop-out"] {
+    display: none !important;
+}
