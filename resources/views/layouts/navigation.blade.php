@@ -45,7 +45,7 @@
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-chef-gray-light text-sm leading-4 font-medium rounded-2xl text-gray-300 bg-chef-gray hover:text-chef-gold hover:bg-chef-gray-light focus:outline-none focus:ring-2 focus:ring-chef-gold transition-all duration-300">
                             <div class="flex items-center space-x-2">
-                                <span>{{ Auth::user()->name }}</span>
+                                <span>{{ Auth::user()->isLearner() ? 'Learner' : Auth::user()->name }}</span>
                                 <x-app.badge variant="gold" size="sm">{{ Auth::user()->getRoleDisplayName() }}</x-app.badge>
                                 @if(auth()->user()->isLearner() && !auth()->user()->hasCompletedProfile())
                                     <x-app.badge variant="warning" size="sm">Profile Incomplete</x-app.badge>
